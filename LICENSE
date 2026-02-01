@@ -1,7 +1,7 @@
                      Server Side Public License
                      VERSION 1, OCTOBER 16, 2018
 
-                    Copyright © 2018 Neil Talap.
+                    Copyright © 2018 Neil Talap and/or its designated Affiliates.
 
   Everyone is permitted to copy and distribute verbatim copies of this
   license document, but changing it is not allowed.
@@ -294,16 +294,19 @@
     a) Disclaiming warranty or limiting liability differently from the
     terms of sections 15 and 16 of this License; or
 
-    b) Requiring preservation of specified reasonable legal notices or
-    author attributions in that material or in the Appropriate Legal
-    Notices displayed by works containing it; or
+    b) You must retain, in the source form of any Modified Version that 
+    you convey, all copyright, patent, trademark, and attribution notices 
+    from the Source Code of the Program. If the Program displays an "About" 
+    or "Credits" screen in its user interface, you must ensure that these 
+    notices remain clearly visible and are not modified or deleted.
 
     c) Prohibiting misrepresentation of the origin of that material, or
     requiring that modified versions of such material be marked in
     reasonable ways as different from the original version; or
 
-    d) Limiting the use for publicity purposes of names of licensors or
-    authors of the material; or
+    d) Neither the name of Neil Talap and/or its designated Affiliates nor the names of any contributors 
+    may be used to endorse or promote products derived from this software 
+    without specific prior written permission.
 
     e) Declining to grant rights under trademark law for use of some trade
     names, trademarks, or service marks; or
@@ -313,6 +316,13 @@
     contractual assumptions of liability to the recipient, for any
     liability that these contractual assumptions directly impose on those
     licensors and authors.
+
+    g) This License does not grant permission to use the trade names, trademarks, 
+    service marks, or product names of the Licensor, except as required for 
+    reasonable and customary use in describing the origin of the Work and 
+    reproducing the content of the copyright notice. Any use of the Licensor’s 
+    marks that suggests endorsement or affiliation without express 
+    written permission is strictly prohibited.
 
   All other non-permissive additional terms are considered “further
   restrictions” within the meaning of section 10. If the Program as you
@@ -500,7 +510,7 @@
 
   14. Revised Versions of this License.
 
-  Neil Talap may publish revised and/or new versions of the Server Side
+  Neil Talap and/or its designated Affiliates may publish revised and/or new versions of the Server Side
   Public License from time to time. Such new versions will be similar in
   spirit to the present version, but may differ in detail to address new
   problems or concerns.
@@ -509,9 +519,9 @@
   specifies that a certain numbered version of the Server Side Public
   License “or any later version” applies to it, you have the option of
   following the terms and conditions either of that numbered version or of
-  any later version published by Neil Talap. If the Program does not
+  any later version published by Neil Talap and/or its designated Affiliates. If the Program does not
   specify a version number of the Server Side Public License, you may
-  choose any version ever published by Neil Talap.
+  choose any version ever published by Neil Talap and/or its designated Affiliates.
 
   If the Program specifies that a proxy can decide which future versions of
   the Server Side Public License can be used, that proxy's public statement
@@ -544,8 +554,16 @@
   OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER
   PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGES.
+
+  17. Choice of Law & Forum
   
-  17. Interpretation of Sections 15 and 16.
+  Any legal action or proceeding relating to this License shall be brought 
+  exclusively in the courts located in the state of Wyoming, United States 
+  of America, and each party hereby consents to the jurisdiction thereof. 
+  This License shall be governed by the laws of Wyoming, United States 
+  of America, without regard to conflict of law provisions.
+  
+  18. Interpretation of Sections 15 and 16.
 
   If the disclaimer of warranty and limitation of liability provided above
   cannot be given local legal effect according to their terms, reviewing
