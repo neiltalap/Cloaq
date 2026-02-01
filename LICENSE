@@ -304,9 +304,9 @@
     requiring that modified versions of such material be marked in
     reasonable ways as different from the original version; or
 
-    d) Neither the name of Neil Talap and/or its designated Affiliates nor the names of any contributors 
-    may be used to endorse or promote products derived from this software 
-    without specific prior written permission.
+    d) Neither the name of Neil Talap and/or its designated Affiliates nor 
+    the names of any contributors may be used to endorse or promote products 
+    derived from this software without specific prior written permission.
 
     e) Declining to grant rights under trademark law for use of some trade
     names, trademarks, or service marks; or
@@ -519,9 +519,10 @@
   specifies that a certain numbered version of the Dragonfly Public License
   “or any later version” applies to it, you have the option of
   following the terms and conditions either of that numbered version or of
-  any later version published by Neil Talap and/or its designated Affiliates. If the Program does not
-  specify a version number of the Dragonfly Public License, you may
-  choose any version ever published by Neil Talap and/or its designated Affiliates.
+  any later version published by Neil Talap and/or its designated Affiliates. 
+  If the Program does not specify a version number of the Dragonfly Public 
+  License, you may choose any version ever published by Neil Talap 
+  and/or its designated Affiliates.
 
   If the Program specifies that a proxy can decide which future versions of
   the Dragonfly Public License can be used, that proxy's public statement
