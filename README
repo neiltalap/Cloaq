@@ -1,15 +1,14 @@
-## Licensing & Legal
+LICENSING & LEGAL
 
-This project is licensed under the **Dragonfly Public License v1.0 (DPL-1.0)**. 
-See the [LICENSE](LICENSE) file for the full text.
+This project is licensed under the Dragonfly Public License v1.0 (DPL-1.0). 
+See the LICENSE file for the full text.
 
-### Mandatory Source Headers
-To maintain the integrity of the project and ensure clear ownership, **every single source file** 
-in this repository must contain the following header at the very top. Any Pull Request (PR) 
+MANDATORY SOURCE HEADERS
+
+To maintain the integrity of the project and ensure clear ownership, every single source file 
+in this repository must contain the following header at the very top. Any Pull Request (PR)
 submitted without this header will be automatically rejected.
 
-```text
 Copyright (c) 2026 Neil Talap and/or its designated Affiliates.
 Licensed under the Dragonfly Public License v1.0 (DPL-1.0).
 See the LICENSE file in the project root for full terms.
-```
