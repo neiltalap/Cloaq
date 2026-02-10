@@ -1,19 +1,101 @@
-LICENSING & LEGAL
+# UDAL — Universal Decentralized Anonymity Layer
 
-This project is licensed under the Dragonfly Public License v1.0 (DPL-1.0). 
-See the LICENSE file for the full text.
+**UDAL** is a protocol-agnostic, decentralized anonymity transport layer that **decouples identity from connectivity**.
 
-CONTRIBUTOR AGREEMENT
+It turns every connected device into a **private gateway**, enabling **Tor-level anonymity** with **WireGuard-level performance**.
 
-Contributions are welcome. By submitting a Pull Request, you formally agree 
-to the terms of the Dragonfly Contributor License Agreement (CLA.txt).
+UDAL is designed as a foundational layer for privacy-preserving networking — independent of application protocols, platforms, or trust anchors.
 
-MANDATORY SOURCE HEADERS
+---
 
-To maintain the integrity of the project and ensure clear ownership, every single source file 
-in this repository must contain the following header at the very top. Any Pull Request (PR)
-submitted without this header will be automatically rejected.
+## Core Principles
 
+- **Identity Decoupling**  
+  Network identity is separated from physical connectivity and IP addressing.
+
+- **Protocol Agnostic**  
+  Works beneath application protocols — HTTP, TCP, UDP, custom transports.
+
+- **Decentralized by Design**  
+  No central relays, directories, or authorities.
+
+- **High Performance**  
+  Optimized routing and cryptography for near–WireGuard throughput.
+
+- **Composable Privacy**  
+  Can be embedded into existing systems without redesigning the stack.
+
+---
+
+## What UDAL Is (and Is Not)
+
+### UDAL Is
+- A **transport-layer anonymity system**
+- A **privacy-first routing fabric**
+- A **building block** for secure applications, services, and devices
+
+### UDAL Is Not
+- A VPN replacement
+- A Tor fork
+- An application-layer anonymity tool
+
+---
+
+## Architecture (High-Level)
+
+- Each node acts as:
+  - A **client**
+  - A **relay**
+  - A **gateway**
+- Traffic is:
+  - Onion-routed
+  - Cryptographically unlinkable
+  - Dynamically path-selected
+- No node has full knowledge of:
+  - Source
+  - Destination
+  - Payload
+
+> Detailed architecture documentation will be provided in `/docs`.
+
+---
+
+## Project Status
+
+**Early-stage / Active development**
+
+- APIs and wire formats may change
+- Not production-ready
+- Security audits pending
+
+---
+
+## Contributing
+
+Contributions are welcome and encouraged.
+
+By submitting a Pull Request, you **explicitly agree** to the terms of the  
+**Dragonfly Contributor License Agreement** found in `CLA.txt`.
+
+Please read the contribution guidelines carefully before submitting changes.
+
+---
+
+## Licensing & Legal
+
+### License
+
+This project is licensed under the **Dragonfly Public License v1.0 (DPL-1.0)**.
+
+See the `LICENSE` file for the full license text.
+
+---
+
+### Mandatory Source Headers 
+
+To maintain legal clarity and project integrity, **every source file** in this repository **must include the following header at the very top**:
+
+```text
 Copyright (c) 2026 Neil Talap and/or its designated Affiliates.
 Licensed under the Dragonfly Public License v1.0 (DPL-1.0).
 See the LICENSE file in the project root for full terms.
