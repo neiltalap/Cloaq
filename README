@@ -4,7 +4,7 @@ _________ .__
 \     \___|  |_(  <_> ) __ \< <_|  |
  \______  /____/\____(____  /\__   |
         \/                \/    |__|
-
+       
 
 UDAL — Universal Decentralized Anonymity Layer
 
@@ -17,7 +17,6 @@ enabling Tor-level anonymity with WireGuard-level performance.
 UDAL is designed as a foundational layer for 
 privacy-preserving networking — independent of application protocols, platforms, or trust anchors.
 
----
 
 Core Principles
 
