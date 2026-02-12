@@ -2,6 +2,7 @@ package node
 
 import (
 	"log"
+	//"cloaq/src/network"
 )
 
 type NodeID struct {
