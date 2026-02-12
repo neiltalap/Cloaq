@@ -1,37 +1,39 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
+
+	"cloaq/src/node"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: cloaq <command>")
+		log.Println("Usage: cloaq <command>")
 		return
 	}
 
 	switch os.Args[1] {
 	case "run":
-		runCommand()
+		log.Println("Running Cloaq")
+
+		if node.Bootstrap() {
+			node.CreateListener() // listen to packets that will be passed via TUN
+		}
+
 	case "settings":
 		settingsCommand()
 	case "help":
 		helpCommand()
 	default:
-		fmt.Println("Unknown command:", os.Args[1])
+		log.Println("Unknown command:", os.Args[1])
 	}
 }
 
-func runCommand() {
-	fmt.Println("Running Cloaq")
-
-}
-
 func helpCommand() {
-	fmt.Println("help text")
+	log.Println("help text")
 }
 
 func settingsCommand() {
-	fmt.Println("settings text")
+	log.Println("settings text")
 }
