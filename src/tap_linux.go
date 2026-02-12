@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 )
 
@@ -23,10 +22,8 @@ type interfaceRequest struct {
 
 func NewTAP(name string) (*os.File, error) {
 	file, err := os.OpenFile("/dev/net/tun", os.O_RDWR, 0)
-	defer file.Close()
 
 	if err != nil {
-		log.Fatal("the /dev/net/tun couldn't have been opened")
 		return nil, err
 	}
 
