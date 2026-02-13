@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"cloaq/network"
 )
 
 func main() {
@@ -24,8 +26,16 @@ func main() {
 }
 
 func runCommand() {
-	fmt.Println("Running Cloaq")
+	fmt.Println("Starting Cloaq...")
 
+	err := network.InitWinTun()
+	if err != nil {
+		fmt.Println("WinTun error:", err)
+		return
+	}
+
+	fmt.Println("Cloaq running (WinTun initialized)")
+	select {}
 }
 
 func helpCommand() {

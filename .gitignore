@@ -1,2 +1,7 @@
 .vs
 .vscode
+bin/arm64/
+bin/x86/
+bin/amd/
+include/
+license/
