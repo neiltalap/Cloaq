@@ -12,6 +12,10 @@ func main() {
 	}
 
 	switch os.Args[1] {
+	case "circuits":
+		UdatlCircuits()
+	case "status":
+		UdalStatus()
 	case "run":
 		runCommand()
 	case "settings":
@@ -21,17 +25,4 @@ func main() {
 	default:
 		fmt.Println("Unknown command:", os.Args[1])
 	}
-}
-
-func runCommand() {
-	fmt.Println("Running Cloaq")
-
-}
-
-func helpCommand() {
-	fmt.Println("help text")
-}
-
-func settingsCommand() {
-	fmt.Println("settings text")
 }
