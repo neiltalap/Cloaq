@@ -1,10 +1,10 @@
-# UDAL — Universal Decentralized Anonymity Layer
+# UDAL ï¿½ Universal Decentralized Anonymity Layer
 
 **UDAL** is a protocol-agnostic, decentralized anonymity transport layer that **decouples identity from connectivity**.
 
 It turns every connected device into a **private gateway**, enabling **Tor-level anonymity** with **WireGuard-level performance**.
 
-UDAL is designed as a foundational layer for privacy-preserving networking — independent of application protocols, platforms, or trust anchors.
+UDAL is designed as a foundational layer for privacy-preserving networking ï¿½ independent of application protocols, platforms, or trust anchors.
 
 ---
 
@@ -14,13 +14,13 @@ UDAL is designed as a foundational layer for privacy-preserving networking — ind
   Network identity is separated from physical connectivity and IP addressing.
 
 - **Protocol Agnostic**  
-  Works beneath application protocols — HTTP, TCP, UDP, custom transports.
+  Works beneath application protocols ï¿½ HTTP, TCP, UDP, custom transports.
 
 - **Decentralized by Design**  
   No central relays, directories, or authorities.
 
 - **High Performance**  
-  Optimized routing and cryptography for near–WireGuard throughput.
+  Optimized routing and cryptography for nearï¿½WireGuard throughput.
 
 - **Composable Privacy**  
   Can be embedded into existing systems without redesigning the stack.
