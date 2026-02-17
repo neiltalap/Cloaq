@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -48,9 +49,11 @@ type Route struct {
 	OutIf  string
 }
 
-var routes []Route
+type Router struct {
+	routes []Route
+}
 
-func CreateRouter(tunFileDescriptor *os.File) {
+func (r *Router) CreateRouter(tunFileDescriptor *os.File) {
 	// while(true) to start constantly reading incoming traffic stored in /dev/tun
 	buf := make([]byte, 65535)
 	for {
@@ -73,8 +76,8 @@ func CreateRouter(tunFileDescriptor *os.File) {
 
 		dst := net.IP(packet[24:40])
 
-		outIf := LookupRoute(dst)
-		if outIf == "" {
+		outIf := r.LookupRoute(dst)
+		if err != nil {
 			continue
 		}
 
@@ -86,11 +89,16 @@ func CreateRouter(tunFileDescriptor *os.File) {
 	}
 }
 
-func CreateIPv6PacketListener(tunFileDescriptor *os.File) {
+func (r *Router) CreateIPv6PacketListener(tunFileDescriptor *os.File) {
 	buf := make([]byte, 65535)
 	for {
 		n, err := tunFileDescriptor.Read(buf)
 		if err != nil {
+			continue
+		}
+
+		// Check if it's IPv6 packet.
+		if len(packet) < 40 {
 			continue
 		}
 
@@ -105,13 +113,16 @@ func NewTUN(name string) *os.File {
 	fileDescriptor, err := os.OpenFile("/dev/net/tun", os.O_RDWR, 0)
 
 	if err != nil {
-		log.Fatalf("open /dev/net/tun failed: %v", err)
+		return nil, fmt.Errorf("open /dev/net/tun failed: %w", err)
 	}
 
+	// Copy the string name into the fixed-size [16]byte array
 	var req interfaceRequest
 	copy(req.Name[:], name)
 	req.Flags = InterfaceFlag_TUN | InterfaceFlag_NO_PI
 
+	// Syscall
+	// This tells Linux: "Take this file descriptor and associate it with a new TUN int
 	_, _, errno := unix.Syscall(
 		unix.SYS_IOCTL,
 		fileDescriptor.Fd(),
@@ -120,32 +131,32 @@ func NewTUN(name string) *os.File {
 	)
 	if errno != 0 {
 		fileDescriptor.Close()
-		log.Fatalf("ioctl TUNSETIFF failed: %v", errno)
+		return nil, fmt.Errorf("ioctl TUNSETIFF failed: %v", errno)
 	}
 
 	log.Println("TUN interface created: ", fileDescriptor)
 	return fileDescriptor
 }
 
-func AddRoute(cidr, outIf string) {
+func (r *Router) AddRoute(cidr, outIf string) error {
 	_, netw, err := net.ParseCIDR(cidr)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	routes = append(routes, Route{
+	r.routes = append(r.routes, Route{
 		Prefix: netw,
 		OutIf:  outIf,
 	})
 }
 
-func LookupRoute(dst net.IP) string {
-	for _, r := range routes {
-		if r.Prefix.Contains(dst) {
-			return r.OutIf
+func (r *Router) LookupRoute(dst net.IP) (string, error) {
+	for _, route := range r.routes {
+		if route.Prefix.Contains(dst) {
+			return route.OutIf, nil
 		}
 	}
-	return ""
+	return "", fmt.Errorf("no route found for %s", dst.String())
 }
 
 // send packet through a raw socket

@@ -46,14 +46,16 @@ func runCommand() {
 	// Create TUN interface
 	tunFD := NewTUN("tun0")
 
+	router := &Router{}
+
 	// Example static routes
-	AddRoute("2001:db8:1::/64", "eth0")
-	AddRoute("2001:db8:2::/64", "eth1")
+	router.AddRoute("2001:db8:1::/64", "eth0")
+	router.AddRoute("2001:db8:2::/64", "eth1")
 
 	log.Println("IPv6 TUN gateway created")
 
 	// CreateRouter(tunFD) to listen and forward packets to another nodes
-	CreateIPv6PacketListener(tunFD)
+	router.CreateIPv6PacketListener(tunFD)
 }
 
 func helpCommand() {
