@@ -15,13 +15,13 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: cloaq <command>")
+		log.Println("Usage: cloaq <command>")
 		return
 	}
 
@@ -33,19 +33,33 @@ func main() {
 	case "help":
 		helpCommand()
 	default:
-		fmt.Println("Unknown command:", os.Args[1])
+		log.Println("Unknown command:", os.Args[1])
 	}
 }
 
 func runCommand() {
-	fmt.Println("Running Cloaq")
+	if os.Geteuid() != 0 {
+		log.Fatal("Run as root") // privileged kernel networking operations
+	}
+	log.Println("Running Cloaq")
 
+	// Create TUN interface
+	tunFD := NewTUN("tun0")
+
+	// Example static routes
+	AddRoute("2001:db8:1::/64", "eth0")
+	AddRoute("2001:db8:2::/64", "eth1")
+
+	log.Println("IPv6 TUN gateway created")
+
+	// CreateRouter(tunFD) to listen and forward packets to another nodes
+	CreateIPv6PacketListener(tunFD)
 }
 
 func helpCommand() {
-	fmt.Println("help text")
+	log.Println("help text")
 }
 
 func settingsCommand() {
-	fmt.Println("settings text")
+	log.Println("settings text")
 }
