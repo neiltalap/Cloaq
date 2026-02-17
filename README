@@ -1,104 +1,35 @@
-_________ .__                       
-\_   ___ \|  |   _________    ______
-/    \  \/|  |  /  _ \__  \  / ____/
-\     \___|  |_(  <_> ) __ \< <_|  |
- \______  /____/\____(____  /\__   |
-        \/                \/    |__|
+# Cloaq (UDAL)
 
+> **Universal Decentralized Anonymity Layer**
+> A protocol-agnostic privacy transport that decouples identity from connectivity.
 
-UDAL — Universal Decentralized Anonymity Layer
+## Features
 
-UDAL is a protocol-agnostic, decentralized anonymity 
-transport layer that decouples identity from connectivity.
+-   **Identity Decoupling**: No IP-based tracking.
+-   **Decentralized**: No central authorities; every node is a relay.
+-   **High Performance**: Near-WireGuard speeds with onion routing.
+-   **Protocol Agnostic**: Supports TCP, UDP, and P2P traffic.
 
-It turns every connected device into a private gateway, 
-enabling Tor-level anonymity with WireGuard-level performance.
+## Usage
 
-UDAL is designed as a foundational layer for 
-privacy-preserving networking — independent of application protocols, platforms, or trust anchors.
+```bash
+# Build
+go build -o cloaq src/*.go
 
----
+# Run (requires root for TUN interface)
+sudo ./cloaq run
+```
 
-Core Principles
+## Contributing
 
-- Identity Decoupling
-  Network identity is separated from physical connectivity and IP addressing.
+See [CONTRIBUTING](CONTRIBUTING) for details.
+All contributors must sign the [CLA](CLA).
 
-- Protocol Agnostic 
-  Works beneath application protocols — HTTP, TCP, UDP, custom transports.
+## License
 
-- Decentralized by Design 
-  No central relays, directories, or authorities.
+Licensed under the **Dragonfly Public License v1.0**.
+See [LICENSE](LICENSE) and [NOTICE](NOTICE) for details.
 
-- High Performance  
-  Optimized routing and cryptography for near–WireGuard throughput.
+### Mandatory Source Header
 
-- Composable Privacy 
-  Can be embedded into existing systems without redesigning the stack.
-
-
-What UDAL Is (and Is Not)
-
-UDAL Is
-- A transport-layer anonymity system
-- A privacy-first routing fabric
-- A building block for secure applications, services, and devices
-
-UDAL Is Not
-- A VPN replacement
-- A Tor fork
-- An application-layer anonymity tool
-
-
-Architecture (High-Level)
-
-- Each node acts as:
-  - A client
-  - A relay
-  - A gateway
-- Traffic is:
-  - Onion-routed
-  - Cryptographically unlinkable
-  - Dynamically path-selected
-- No node has full knowledge of:
-  - Source
-  - Destination
-  - Payload
-
-
-Project Status
-
-Early-stage / Active development
-
-- APIs and wire formats may change
-- Not production-ready
-- Security audits pending
-
-
-Contributing
-
-Contributions are welcome and encouraged.
-
-By submitting a Pull Request, you explicitly agree to the terms of the  
-Dragonfly Contributor License Agreement found in `CLA.txt`.
-
-Please read the contribution guidelines carefully before submitting changes.
-
-
-Licensing & Legal
-
-License
-
-This project is licensed under the Dragonfly Public License v1.0 (DPL-1.0).
-
-See the `LICENSE` file for the full license text.
-
-
-Mandatory Source Headers 
-
-To maintain legal clarity and project integrity, 
-every source file in this repository must include the following header at the very top:
-
-Copyright (c) 2026 Neil Talap and/or its designated Affiliates.
-Licensed under the Dragonfly Public License v1.0 (DPL-1.0).
-See the LICENSE file in the project root for full terms.
+All source files must include the header defined in the [NOTICE](NOTICE) file.
