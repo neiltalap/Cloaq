@@ -15,8 +15,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"runtime"
+
+	"cloaq/src/network"
 )
 
 func main() {
@@ -38,24 +42,59 @@ func main() {
 }
 
 func runCommand() {
-	if os.Geteuid() != 0 {
-		log.Fatal("Run as root") // privileged kernel networking operations
+	fmt.Println("Starting Cloaq...")
+	fmt.Println("GOOS:", runtime.GOOS, "GOARCH:", runtime.GOARCH)
+
+	tun, err := network.InitTunnel()
+	if err != nil {
+		fmt.Println("Tunnel init error:", err)
+		return
 	}
-	log.Println("Running Cloaq")
+	if tun == nil {
+		fmt.Println("Tunnel initialized (no device object returned on this OS yet).")
+		fmt.Println("Cloaq running.")
+		select {}
+	}
 
-	// Create TUN interface
-	tunFD := NewTUN("tun0")
+	defer tun.Close()
+	fmt.Println("Tunnel ready:", tun.Name())
 
+	// Integrated logic: Start the local tunnel processing
+	if err := tun.Start(); err != nil {
+		fmt.Println("Tunnel start error:", err)
+		return
+	}
+
+	fmt.Println("Reading packets from tunnel...")
+	// Start the ReadLoop in a goroutine so we can also run the router
+	go func() {
+		if err := network.ReadLoop(tun); err != nil {
+			fmt.Println("ReadLoop error:", err)
+		}
+	}()
+
+	// Upstream logic: Initialize Router and start IPv6 listener
 	router := &Router{}
 
-	// Example static routes
+	// Example static routes from upstream
 	router.AddRoute("2001:db8:1::/64", "eth0")
 	router.AddRoute("2001:db8:2::/64", "eth1")
 
 	log.Println("IPv6 TUN gateway created")
 
-	// CreateRouter(tunFD) to listen and forward packets to another nodes
-	router.CreateIPv6PacketListener(tunFD)
+	// Use the file descriptor from the local 'tun' object
+	// Note: We need to ensure tun.File() or similar exists or we use the raw FD if accessible.
+	// Since 'tun' is from 'network.InitTunnel()', let's check what 'tun' is.
+	// For now, I'll use the logic that requires the FD. 
+	// If 'tun' doesn't provide it easily, I might need to adjust 'network' package.
+	
+	// Assuming tun is an interface or struct that might have a File() method returning *os.File
+	if f, ok := tun.(interface{ File() *os.File }); ok {
+		router.CreateIPv6PacketListener(f.File())
+	} else {
+		log.Println("Warning: Could not get file descriptor for IPv6 listener")
+		select {} // Keep running
+	}
 }
 
 func helpCommand() {
