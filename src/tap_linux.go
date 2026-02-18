@@ -24,10 +24,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-/*
-	we're gonna have to disable
-*/
-
 const (
 	// To get L3 interface
 	InterfaceFlag_TUN = 0x0001
@@ -53,7 +49,7 @@ type Router struct {
 	routes []Route
 }
 
-func (r *Router) CreateRouter(tunFileDescriptor *os.File) {
+func (router *Router) CreateRouter(tunFileDescriptor *os.File) {
 	// while(true) to start constantly reading incoming traffic stored in /dev/tun
 	buf := make([]byte, 65535)
 	for {
@@ -64,6 +60,7 @@ func (r *Router) CreateRouter(tunFileDescriptor *os.File) {
 
 		packet := buf[:n]
 
+		// Check if it's IPv6 packet.
 		if len(packet) < 40 {
 			continue
 		}
@@ -76,7 +73,7 @@ func (r *Router) CreateRouter(tunFileDescriptor *os.File) {
 
 		dst := net.IP(packet[24:40])
 
-		outIf := r.LookupRoute(dst)
+		outIf, err := router.LookupRoute(dst)
 		if err != nil {
 			continue
 		}
@@ -97,19 +94,19 @@ func (r *Router) CreateIPv6PacketListener(tunFileDescriptor *os.File) {
 			continue
 		}
 
-		// Check if it's IPv6 packet.
+		packet := buf[:n]
+
+		// Check if it's IPv6 packet
 		if len(packet) < 40 {
 			continue
 		}
-
-		packet := buf[:n]
 
 		payload := packet[40:]
 		log.Printf("Payload (%d bytes): % x\n", len(payload), payload)
 	}
 }
 
-func NewTUN(name string) *os.File {
+func NewTUN(name string) (*os.File, error) {
 	fileDescriptor, err := os.OpenFile("/dev/net/tun", os.O_RDWR, 0)
 
 	if err != nil {
@@ -135,7 +132,7 @@ func NewTUN(name string) *os.File {
 	}
 
 	log.Println("TUN interface created: ", fileDescriptor)
-	return fileDescriptor
+	return fileDescriptor, nil
 }
 
 func (r *Router) AddRoute(cidr, outIf string) error {
@@ -148,6 +145,7 @@ func (r *Router) AddRoute(cidr, outIf string) error {
 		Prefix: netw,
 		OutIf:  outIf,
 	})
+	return nil
 }
 
 func (r *Router) LookupRoute(dst net.IP) (string, error) {
