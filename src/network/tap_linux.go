@@ -22,6 +22,7 @@ func (t *LinuxTUN) Read(p []byte) (int, error)  { return t.file.Read(p) }
 func (t *LinuxTUN) Write(p []byte) (int, error) { return t.file.Write(p) }
 func (t *LinuxTUN) Close() error                { return t.file.Close() }
 func (t *LinuxTUN) Name() string                { return t.name }
+func (t *LinuxTUN) File() *os.File              { return t.file }
 
 // Minimal ifreq for TUNSETIFF: IFNAMSIZ name + short flags + padding.
 // This layout is the standard way to do it from Go without relying on unix.Ifreq internals.
