@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"runtime"
 
@@ -10,7 +11,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: cloaq <command>")
+		log.Println("Usage: cloaq <command>")
 		return
 	}
 
@@ -22,7 +23,7 @@ func main() {
 	case "help":
 		helpCommand()
 	default:
-		fmt.Println("Unknown command:", os.Args[1])
+		log.Println("Unknown command:", os.Args[1])
 	}
 }
 
@@ -35,7 +36,6 @@ func runCommand() {
 		fmt.Println("Tunnel init error:", err)
 		return
 	}
-
 	if tun == nil {
 		fmt.Println("Tunnel initialized (no device object returned on this OS yet).")
 		fmt.Println("Cloaq running.")
@@ -58,9 +58,9 @@ func runCommand() {
 }
 
 func helpCommand() {
-	fmt.Println("help text")
+	log.Println("help text")
 }
 
 func settingsCommand() {
-	fmt.Println("settings text")
+	log.Println("settings text")
 }
