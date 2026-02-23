@@ -1,11 +1,8 @@
-// NOTICE
-// Project Name: Cloaq
-// Copyright © 2026 Neil Talap and/or its designated Affiliates.
+//go:build linux
 
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -39,11 +36,9 @@ type Route struct {
 	OutIf  string
 }
 
-type Router struct {
-	routes []Route
-}
+var routes []Route
 
-func (r *Router) CreateRouter(tunFileDescriptor *os.File) {
+func CreateRouter(tunFileDescriptor *os.File) {
 	// while(true) to start constantly reading incoming traffic stored in /dev/tun
 	buf := make([]byte, 65535)
 	for {
@@ -66,53 +61,26 @@ func (r *Router) CreateRouter(tunFileDescriptor *os.File) {
 
 		dst := net.IP(packet[24:40])
 
-		outIf, err := r.LookupRoute(dst)
-		if err != nil {
+		outIf := LookupRoute(dst)
+		if outIf == "" {
 			continue
 		}
-
-		/*
-			FORWARD TRAFFIC TO ANOTHER NODE
-		*/
 
 		SendPacket(outIf, packet)
 	}
 }
 
-func (r *Router) CreateIPv6PacketListener(tunFileDescriptor *os.File) {
-	buf := make([]byte, 65535)
-	for {
-		n, err := tunFileDescriptor.Read(buf)
-		if err != nil {
-			continue
-		}
-
-		packet := buf[:n]
-
-		// Check if it's IPv6 packet.
-		if len(packet) < 40 {
-			continue
-		}
-
-		payload := packet[40:]
-		log.Printf("Payload (%d bytes): % x\n", len(payload), payload)
-	}
-}
-
-func NewTUN(name string) (*os.File, error) {
+func NewTUN(name string) *os.File {
 	fileDescriptor, err := os.OpenFile("/dev/net/tun", os.O_RDWR, 0)
 
 	if err != nil {
-		return nil, fmt.Errorf("open /dev/net/tun failed: %w", err)
+		log.Fatalf("open /dev/net/tun failed: %v", err)
 	}
 
-	// Copy the string name into the fixed-size [16]byte array
 	var req interfaceRequest
 	copy(req.Name[:], name)
 	req.Flags = InterfaceFlag_TUN | InterfaceFlag_NO_PI
 
-	// Syscall
-	// This tells Linux: "Take this file descriptor and associate it with a new TUN int
 	_, _, errno := unix.Syscall(
 		unix.SYS_IOCTL,
 		fileDescriptor.Fd(),
@@ -121,33 +89,32 @@ func NewTUN(name string) (*os.File, error) {
 	)
 	if errno != 0 {
 		fileDescriptor.Close()
-		return nil, fmt.Errorf("ioctl TUNSETIFF failed: %v", errno)
+		log.Fatalf("ioctl TUNSETIFF failed: %v", errno)
 	}
 
 	log.Println("TUN interface created: ", fileDescriptor)
-	return fileDescriptor, nil
+	return fileDescriptor
 }
 
-func (r *Router) AddRoute(cidr, outIf string) error {
+func AddRoute(cidr, outIf string) {
 	_, netw, err := net.ParseCIDR(cidr)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 
-	r.routes = append(r.routes, Route{
+	routes = append(routes, Route{
 		Prefix: netw,
 		OutIf:  outIf,
 	})
-	return nil
 }
 
-func (r *Router) LookupRoute(dst net.IP) (string, error) {
-	for _, route := range r.routes {
-		if route.Prefix.Contains(dst) {
-			return route.OutIf, nil
+func LookupRoute(dst net.IP) string {
+	for _, r := range routes {
+		if r.Prefix.Contains(dst) {
+			return r.OutIf
 		}
 	}
-	return "", fmt.Errorf("no route found for %s", dst.String())
+	return ""
 }
 
 // send packet through a raw socket
@@ -160,7 +127,7 @@ func SendPacket(ifName string, packet []byte) {
 	fd, err := unix.Socket(
 		unix.AF_PACKET,
 		unix.SOCK_RAW,
-		int(htons(0x86DD)),
+		int(htons(0x86DD)), // ETH_P_IPV6
 	)
 	if err != nil {
 		return
@@ -172,8 +139,7 @@ func SendPacket(ifName string, packet []byte) {
 		Protocol: htons(0x86DD),
 	}
 
-	// Kernel will add L2 header automatically
-	unix.Sendto(fd, packet, 0, sll)
+	_ = unix.Sendto(fd, packet, 0, sll)
 }
 
 func htons(i uint16) uint16 {
