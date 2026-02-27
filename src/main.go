@@ -74,6 +74,26 @@ func runCommand() {
 		}
 	}()
 
+	// Initialize UDP transport
+	tr, err := NewTransport(":9000")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Incoming packets
+	incoming := make(chan []byte, 1024)
+
+	// Start UDP Listener
+	go tr.Listen(incoming)
+
+	// Write packets to TUN
+	go func() {
+		for pkt := range incoming {
+			if err := tun.WritePacket(dev, pkt); err != nil {
+				log.Println("write to tun failed:", err)
+			}
+		}
+	}()
+
 	// Upstream logic: Initialize Router and start IPv6 listener
 	router := routing.NewRouter()
 
