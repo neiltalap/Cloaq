@@ -57,7 +57,12 @@ func runCommand() {
 		select {}
 	}
 
-	defer dev.Close()
+	defer func(dev tun.Device) {
+		err := dev.Close()
+		if err != nil {
+			fmt.Println("Tunnel close error:", err)
+		}
+	}(dev)
 	fmt.Println("Tunnel ready:", dev.Name())
 
 	// Integrated logic: Start the local tunnel processing
@@ -73,6 +78,18 @@ func runCommand() {
 			fmt.Println("ReadLoop error:", err)
 		}
 	}()
+
+	id, err := GenerateIdentity()
+	if err != nil {
+		log.Fatalf("Failed to generate identity: %v", err)
+	}
+	fmt.Printf("Node Identity (Public Key): %s\n", id.String())
+
+	dev, err = tun.InitDevice()
+	if err != nil {
+		fmt.Println("Tunnel init error:", err)
+		return
+	}
 
 	// Initialize UDP transport
 	tr, err := NewTransport(":9000")
@@ -97,9 +114,13 @@ func runCommand() {
 	// Upstream logic: Initialize Router and start IPv6 listener
 	router := routing.NewRouter()
 
-	// Example static routes from upstream
-	router.AddRoute("2001:db8:1::/64", "eth0")
-	router.AddRoute("2001:db8:2::/64", "eth1")
+	if err := router.AddRoute("2001:db8:1::/64", "eth0"); err != nil {
+		log.Fatalf("Failed to add route 1: %v", err)
+	}
+
+	if err := router.AddRoute("2001:db8:2::/64", "eth1"); err != nil {
+		log.Fatalf("Failed to add route 2: %v", err)
+	}
 
 	log.Println("IPv6 TUN gateway created")
 
