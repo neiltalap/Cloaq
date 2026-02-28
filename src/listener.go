@@ -1,29 +1,29 @@
 package main
 
 import (
-	"log"
-
 	"cloaq/src/network"
+	"log"
 )
 
-func CreateIPv6PacketListener(tun network.Tunnel) {
+func CreateIPv6PacketListener(tun *network.LinuxTunnel) {
 	buf := make([]byte, 65535)
 	for {
 		n, err := tun.Read(buf)
 		if err != nil {
-			log.Println("tun.Read error:", err)
+			log.Println("TUN Read error:", err)
 			continue
 		}
 
 		pkt := buf[:n]
+
 		if len(pkt) < 40 {
 			continue
 		}
+
 		if (pkt[0] >> 4) != 6 {
 			continue
 		}
 
-		payload := pkt[40:]
-		log.Printf("IPv6 packet: %d bytes, payload %d bytes\n", len(pkt), len(payload))
+		log.Printf("Captured IPv6 packet: %d bytes\n", n)
 	}
 }
