@@ -15,13 +15,13 @@
 package main
 
 import (
-	"log"
-
 	"cloaq/src/tun"
+	"log"
+	"net"
 )
 
 // Reads packets from Tunnel, FOR NOW it's just logs basic info (IPv4/IPv6)
-func ReadLoop(dev tun.Device) error {
+func ReadLoop(dev tun.Device, tr *Transport, targetPeers []net.UDPAddr) error {
 	buf := make([]byte, 65535)
 
 	for {
@@ -29,19 +29,28 @@ func ReadLoop(dev tun.Device) error {
 		if err != nil {
 			return err
 		}
-		pkt := buf[:n]
-		if len(pkt) < 1 {
+		if n < 1 {
 			continue
 		}
 
-		ver := pkt[0] >> 4
-		switch ver {
-		case 6:
-			log.Printf("IPv6 packet: %d bytes\n", len(pkt))
-		case 4:
-			log.Printf("IPv4 packet: %d bytes\n", len(pkt))
-		default:
-			log.Printf("Unknown packet version %d: %d bytes\n", ver, len(pkt))
+		pkt := make([]byte, n)
+		copy(pkt, buf[:n])
+
+		finalPkt := make([]byte, len(pkt)+1)
+		finalPkt[0] = 0x01
+		copy(finalPkt[1:], pkt)
+
+		for _, peerAddr := range targetPeers {
+			addr := peerAddr
+			go func(a net.UDPAddr, data []byte) {
+				err := tr.SendTo(&a, data)
+				if err != nil {
+					log.Printf("Ошибка отправки на %s: %v", a.String(), err)
+				}
+			}(addr, finalPkt)
 		}
+
+		ver := pkt[0] >> 4
+		log.Printf("[TUN -> NET] Отправлен IPv%d пакет (%d байт) на %d узлов", ver, n, len(targetPeers))
 	}
 }
