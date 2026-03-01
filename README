@@ -8,26 +8,92 @@ _________ .__
 Universal Decentralized Anonymity Layer
 A protocol-agnostic privacy transport that decouples identity from connectivity.
 
-Features
+FEATURES
+
 * Identity Decoupling: No IP-based tracking.
 * Decentralized: No central authorities; every node is a relay.
 * High Performance: Near-WireGuard speeds with onion routing.
 * Protocol Agnostic: Supports TCP, UDP, and P2P traffic.
 
-Usage
+USAGE
+
 Build:
 go build -o cloaq src/*.go
 
 Run (requires root for TUN interface):
 sudo ./cloaq run
 
-Contributing
+
+
+
+
+
+CONTRIBUTING
+
 See CONTRIBUTING for details.
 All contributors must sign the CLA.
 
-License
+LICENSE
+
 Licensed under the Dragonfly Public License v1.0.
 See LICENSE and NOTICE for details.
 
 Mandatory Source Header
 All source files must include the header defined in the NOTICE file.
+
+DECLARATION OF INDEPENDENCE AND INTENT
+
+1. Absolute Non-Affiliation: This project is a strictly independent, open-source initiative. 
+It has absolutely no affiliation, sponsorship, or association with any state, government, 
+public agency, or state-funded incubator anywhere on Earth. No government grants, 
+public funds, or state resources were utilized in its architecture, deployment or current operation.
+
+2. Purpose and Intent: This software is engineered strictly as a tool of freedom, privacy, 
+and technical autonomy. It was developed with zero malicious intent. It is expressly 
+not to be used as a catalyst for vile acts, oppression, surveillance, or the violation of human rights.
+
+STRICT PROHIBITION OF STATE CO-OPTATION & FRAUDULENT CLAIMS
+
+1. Sovereign Independence: This repository is a sovereign, independent asset. No entity, whether 
+a government, corporation, public agency, private institution, incubator, or individual, 
+has the authorization to claim this project, its creators, or its output as their own 
+initiative, proprietary success, or "domestic achievement."
+
+2. Declaration of Fraud: Any claim by any organization, state apparatus, or 
+media outlet that this project constitutes their success, or sponsored achievement is categorically 
+false and constitutes deliberate fraud. The creators explicitly deny any unauthorized association. 
+Co-opting this work for state propaganda, corporate public relations, regional rankings, or political 
+and financial capital is an unauthorized manipulation of our identity, metrics, and labor.
+
+3. Revocation of Rights: Any attempt by any entity, or its proxies, to falsely claim credit for, 
+or co-opt the public narrative of this project, immediately and permanently invalidates their right to utilize, 
+fork, modify, or distribute this software under any license provided herein.
+
+4. Contributor Binding & Expulsion:
+This strict prohibition of co-optation applies universally to all current and future contributors, 
+maintainers, and independent contractors associated with this project. Any contributor who publicly 
+aligns this project with a state apparatus, corporation, or unauthorized incubator, or leverages their contribution
+to secure unauthorized state funding, public relations, or political capital, is in direct violation of 
+this project’s core sovereignty. Such actions will result in immediate revocation of repository access, 
+termination of associated contracts, and absolute public disavowal of their statements.
+
+5. Absolute Financial Decoupling:
+Any financial contributions, donations, or grants sent to this project, its maintainers, or its 
+holding entities grant the sender zero equity, zero editorial control, and zero rights to publicize 
+the transaction for public relations or political capital. Unsolicited funds from state apparatuses, 
+public agencies, or corporate entities establish no reciprocal obligation and 
+do not constitute a sponsorship or partnership.
+
+6. The Right to Pseudonymity:
+The maintainers and contributors to this repository reserve the absolute right to operate under 
+cryptographic or functional pseudonyms. Any attempt by a state apparatus, media outlet, or corporate entity 
+to dox, de-anonymize, or geographically locate contributors for the purpose of political pressure, 
+conscription of labor, or unauthorized PR is considered a hostile act against the project's integrity. 
+The value of this project lies strictly in its code, not in the physical identities or nationalities of its architects.
+
+7. Decentralized Mirroring & Anti-Censorship:
+This software is designed to be highly resilient. In the event of localized ISP blocking, 
+state-level censorship, or platform-level takedowns, the global open-source community is explicitly 
+authorized and encouraged to fork, mirror, and redistribute this repository across decentralized 
+networks and alternative version control platforms. No single geographic or corporate choke 
+point shall dictate the availability of this tool.
