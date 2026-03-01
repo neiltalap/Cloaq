@@ -40,7 +40,6 @@ func CreateTUN(name string) (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	var req struct {
 		Name  [unix.IFNAMSIZ]byte
 		Flags uint16

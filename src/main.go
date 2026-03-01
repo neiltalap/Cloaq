@@ -11,120 +11,93 @@
 
 // For commercial licensing inquiries or permissions beyond the scope of this
 // license, please create an issue in github.
-
 package main
 
 import (
+	"cloaq/src/tun"
 	"fmt"
 	"log"
+	"net"
 	"os"
-	"runtime"
-
-	"cloaq/src/routing"
-	"cloaq/src/tun"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Println("Usage: cloaq <command>")
+		log.Println("Использование: sudo ./cloaq run <ip_сервера:порт>")
 		return
 	}
 
 	switch os.Args[1] {
 	case "run":
 		runCommand()
-	case "settings":
-		settingsCommand()
 	case "help":
 		helpCommand()
+	case "settings":
+		settingsCommand()
 	default:
-		log.Println("Unknown command:", os.Args[1])
+		log.Println("Неизвестная команда:", os.Args[1])
 	}
 }
 
 func runCommand() {
-	fmt.Println("Starting Cloaq...")
-	fmt.Println("GOOS:", runtime.GOOS, "GOARCH:", runtime.GOARCH)
-
-	dev, err := tun.InitDevice()
-	if err != nil {
-		fmt.Println("Tunnel init error:", err)
-		return
-	}
-	if dev == nil {
-		fmt.Println("Tunnel initialized (no device object returned on this OS yet).")
-		fmt.Println("Cloaq running.")
-		select {}
-	}
-
-	defer func(dev tun.Device) {
-		err := dev.Close()
-		if err != nil {
-			fmt.Println("Tunnel close error:", err)
-		}
-	}(dev)
-	fmt.Println("Tunnel ready:", dev.Name())
-
-	// Integrated logic: Start the local tunnel processing
-	if err := dev.Start(); err != nil {
-		fmt.Println("Tunnel start error:", err)
-		return
-	}
-
-	fmt.Println("Reading packets from tunnel...")
-	// Start the ReadLoop in a goroutine so we can also run the router
-	go func() {
-		if err := ReadLoop(dev); err != nil {
-			fmt.Println("ReadLoop error:", err)
-		}
-	}()
+	fmt.Println("Запуск Cloaq...")
 
 	id, err := GenerateIdentity()
 	if err != nil {
-		log.Fatalf("Failed to generate identity: %v", err)
+		log.Fatalf("Ошибка Identity: %v", err)
 	}
-	fmt.Printf("Node Identity (Public Key): %s\n", id.String())
+	fmt.Printf("Ваш Public Key: %s\n", id.String())
 
-	dev, err = tun.InitDevice()
+	dev, err := tun.InitDevice()
 	if err != nil {
-		fmt.Println("Tunnel init error:", err)
-		return
+		log.Fatal("Ошибка TUN:", err)
+	}
+	fmt.Println("Интерфейс готов:", dev.Name())
+
+	if err := dev.Start(); err != nil {
+		log.Fatal("Ошибка старта TUN:", err)
 	}
 
-	// Initialize UDP transport
 	tr, err := NewTransport(":9000")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Ошибка транспорта:", err)
 	}
-	// Incoming packets
-	incoming := make(chan []byte, 1024)
 
-	// Start UDP Listener
+	var targetPeers []net.UDPAddr
+	if len(os.Args) > 2 {
+		addr, err := net.ResolveUDPAddr("udp", os.Args[2])
+		if err == nil {
+			targetPeers = append(targetPeers, *addr)
+			fmt.Printf("Добавлен пир для рассылки: %s\n", addr.String())
+		}
+	}
+
+	incoming := make(chan []byte, 1024)
 	go tr.Listen(incoming)
 
-	// Write packets to TUN
 	go func() {
-		for pkt := range incoming {
-			if err := tun.WritePacket(dev, pkt); err != nil {
-				log.Println("write to tun failed:", err)
+		for data := range incoming {
+			if len(data) < 1 {
+				continue
+			}
+
+			if data[0] == 0x01 {
+				ipPacket := data[1:]
+
+				err := tun.WritePacket(dev, ipPacket)
+				if err != nil {
+					log.Println("Ошибка записи в TUN:", err)
+				} else {
+					log.Printf("[NET -> TUN] Получен и расшифрован пакет (%d байт)", len(ipPacket))
+				}
 			}
 		}
 	}()
 
-	// Upstream logic: Initialize Router and start IPv6 listener
-	router := routing.NewRouter()
-
-	if err := router.AddRoute("2001:db8:1::/64", "eth0"); err != nil {
-		log.Fatalf("Failed to add route 1: %v", err)
+	fmt.Println("Cloaq работает. Ожидание трафика...")
+	if err := ReadLoop(dev, tr, targetPeers); err != nil {
+		log.Fatal("Ошибка ReadLoop:", err)
 	}
-
-	if err := router.AddRoute("2001:db8:2::/64", "eth1"); err != nil {
-		log.Fatalf("Failed to add route 2: %v", err)
-	}
-
-	log.Println("IPv6 TUN gateway created")
-
-	go routing.CreateIPv6PacketListener(dev)
 }
 
 func helpCommand() {
