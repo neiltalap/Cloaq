@@ -44,7 +44,7 @@ func runCommand() {
 	// start cloaq process
 	log.Println("starting cloaq...")
 
-	// Настройка перехвата сигналов для корректного выхода
+	// Listen for system signals (Ctrl+C, termination)
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
