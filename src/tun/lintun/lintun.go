@@ -17,7 +17,6 @@
 package lintun
 
 import (
-	"log"
 	"os"
 	"unsafe"
 
@@ -36,26 +35,31 @@ type interfaceRequest struct {
 }
 
 func CreateTUN(name string) (*os.File, error) {
-	fileDescriptor, err := os.OpenFile("/dev/net/tun", os.O_RDWR, 0)
+
+	fd, err := unix.Open("/dev/net/tun", unix.O_RDWR|unix.O_NONBLOCK, 0)
 	if err != nil {
 		return nil, err
 	}
-
 	var req interfaceRequest
+
 	copy(req.Name[:], name)
+
 	req.Flags = InterfaceFlag_TUN | InterfaceFlag_NO_PI
 
 	_, _, errno := unix.Syscall(
 		unix.SYS_IOCTL,
-		fileDescriptor.Fd(),
+		uintptr(fd),
 		uintptr(unix.TUNSETIFF),
 		uintptr(unsafe.Pointer(&req)),
 	)
+
 	if errno != 0 {
-		fileDescriptor.Close()
+		err := unix.Close(fd)
+		if err != nil {
+			return nil, err
+		}
 		return nil, errno
 	}
 
-	log.Println("TUN interface created: ", fileDescriptor)
-	return fileDescriptor, nil
+	return os.NewFile(uintptr(fd), "/dev/net/tun"), nil
 }

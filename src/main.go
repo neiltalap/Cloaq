@@ -11,101 +11,117 @@
 
 // For commercial licensing inquiries or permissions beyond the scope of this
 // license, please create an issue in github.
-
 package main
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"runtime"
-
-	"cloaq/src/routing"
 	"cloaq/src/tun"
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Println("Usage: cloaq <command>")
+		log.Println("use sudo ./cloaq run <ipGen_port>")
 		return
 	}
 
 	switch os.Args[1] {
 	case "run":
 		runCommand()
-	case "settings":
-		settingsCommand()
 	case "help":
 		helpCommand()
+	case "settings":
+		settingsCommand()
 	default:
-		log.Println("Unknown command:", os.Args[1])
+		log.Println("unknown command", os.Args[1])
 	}
 }
 
 func runCommand() {
-	fmt.Println("Starting Cloaq...")
-	fmt.Println("GOOS:", runtime.GOOS, "GOARCH:", runtime.GOARCH)
+	// start cloaq process
+	log.Println("starting cloaq...")
 
+	// Настройка перехвата сигналов для корректного выхода
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	// initialize node identity
+	id, err := GenerateIdentity()
+	if err != nil {
+		log.Fatalf("failed to generate identity: %v", err)
+	}
+
+	log.Printf("node public key: %s\n", id.String())
+
+	// initialize tun device
 	dev, err := tun.InitDevice()
 	if err != nil {
-		fmt.Println("Tunnel init error:", err)
-		return
+		log.Fatal("failed to initialize tun:", err)
 	}
-	if dev == nil {
-		fmt.Println("Tunnel initialized (no device object returned on this OS yet).")
-		fmt.Println("Cloaq running.")
-		select {}
-	}
+	log.Println("interface ready:", dev.Name())
 
-	defer dev.Close()
-	fmt.Println("Tunnel ready:", dev.Name())
-
-	// Integrated logic: Start the local tunnel processing
+	// start the tun device
 	if err := dev.Start(); err != nil {
-		fmt.Println("Tunnel start error:", err)
-		return
+		log.Fatal("failed to start tun:", err)
 	}
 
-	fmt.Println("Reading packets from tunnel...")
-	// Start the ReadLoop in a goroutine so we can also run the router
-	go func() {
-		if err := ReadLoop(dev); err != nil {
-			fmt.Println("ReadLoop error:", err)
-		}
-	}()
-
-	// Initialize UDP transport
+	// setup udp transport
 	tr, err := NewTransport(":9000")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("transport error:", err)
 	}
-	// Incoming packets
-	incoming := make(chan []byte, 1024)
 
-	// Start UDP Listener
+	// handle target peers from arguments
+	var targetPeers []net.UDPAddr
+	if len(os.Args) > 2 {
+		addr, err := net.ResolveUDPAddr("udp", os.Args[2])
+		if err == nil {
+			targetPeers = append(targetPeers, *addr)
+			log.Printf("added peer for broadcast: %s\n", addr.String())
+		}
+	}
+
+	// listen for incoming network traffic
+	incoming := make(chan []byte, 1024)
 	go tr.Listen(incoming)
 
-	// Write packets to TUN
+	// process incoming data and write to tun
 	go func() {
-		for pkt := range incoming {
-			if err := tun.WritePacket(dev, pkt); err != nil {
-				log.Println("write to tun failed:", err)
+		for data := range incoming {
+			if len(data) < 1 {
+				continue
+			}
+
+			// check packet type (0x01 = data)
+			if data[0] == 0x01 {
+				ipPacket := data[1:]
+
+				err := tun.WritePacket(dev, ipPacket)
+				if err != nil {
+					log.Println("tun write error:", err)
+				} else {
+					log.Printf("[net -> tun] received and processed packet (%d bytes)", len(ipPacket))
+				}
 			}
 		}
 	}()
 
-	// Upstream logic: Initialize Router and start IPv6 listener
-	router := routing.NewRouter()
+	// start main read loop for outgoing traffic
+	go func() {
+		log.Println("cloaq is running. waiting for traffic...")
+		if err := ReadLoop(dev, tr, targetPeers); err != nil {
+			log.Fatal("readloop failed:", err)
+		}
+	}()
 
-	// Example static routes from upstream
-	router.AddRoute("2001:db8:1::/64", "eth0")
-	router.AddRoute("2001:db8:2::/64", "eth1")
+	// waiting for shutting down
 
-	log.Println("IPv6 TUN gateway created")
-
-	go routing.CreateIPv6PacketListener(dev)
+	<-sigChan
+	log.Println("shutting down...")
 }
-
 func helpCommand() {
 	log.Println("help text")
 }
