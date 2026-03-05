@@ -14,7 +14,10 @@
 
 package routing
 
-import "net"
+import (
+	"fmt"
+	"net"
+)
 
 type Route struct {
 	Prefix *net.IPNet
@@ -38,11 +41,11 @@ func (r *Router) AddRoute(cidr, outIf string) error {
 	return nil
 }
 
-func (r *Router) LookupRoute(dst net.IP) string {
+func (r *Router) LookupRoute(dst net.IP) (string, error) {
 	for _, rt := range r.routes {
 		if rt.Prefix.Contains(dst) {
-			return rt.OutIf
+			return rt.OutIf, nil
 		}
 	}
-	return ""
+	return "", fmt.Errorf("no route found for %s", dst)
 }
