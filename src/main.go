@@ -119,7 +119,7 @@ func runCommand() {
 
 	// waiting for shutting down
 
-	<-sigChan
+	select{}
 	log.Println("shutting down...")
 }
 func helpCommand() {
