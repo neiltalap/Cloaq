@@ -16,9 +16,6 @@ package main
 
 import (
 	"cloaq/src/commands"
-	"flag"
-	"fmt"
-
 	"log"
 	"os"
 )
@@ -28,23 +25,10 @@ func main() {
 		log.Println("Usage: cloaq <command>")
 		return
 	}
-	port := flag.Int("port", 8080, "Port to listen on")
-	peers := flag.String("peers", "", "Comma-separated list of peer addresses")
-	err := flag.CommandLine.Parse(os.Args[2:])
-	if err != nil {
-		return
-	}
 
-	fmt.Printf("Starting Cloaq on port %d...\n", *port)
+	commandRegistry := commands.MakeCommandRegistry(&commands.RunCommand{}, &commands.SettingsCommand{})
+	help := &commands.HelpCommand{CLI: commandRegistry}
+	commandRegistry.Commands[help.Name()] = help // hate that we have Commands and commands. needs to be changed.
 
-	switch os.Args[1] {
-	case "run":
-		commands.RunCommand(*port, *peers)
-	case "settings":
-		commands.SettingsCommand()
-	case "help":
-		commands.HelpCommand()
-	default:
-		log.Println("Unknown command:", os.Args[1])
-	}
+	commandRegistry.Execute()
 }
