@@ -4,10 +4,20 @@ import (
 	network "cloaq/src"
 	"cloaq/src/routing"
 	"cloaq/src/tun"
+	"flag"
+	"fmt"
 	"log"
 	"runtime"
 	"time"
 )
+
+// imitation of config , in real project it will be yaml file
+type Config struct {
+	IdentityPath string
+	Port         int
+}
+
+var currentConfig = Config{IdentityPath: "./id.key", Port: 8080}
 
 func RunCommand(port int, peers string) {
 	log.Println("starting cloaq...")
@@ -67,11 +77,58 @@ func RunCommand(port int, peers string) {
 }
 
 func HelpCommand() {
-	log.Println("help text")
+
+	helpText := `
+Cloaq — Universal Decentralized Anonymity Layer (UDAL)
+
+Usage:
+  cloaq [command] [arguments]
+
+Available Commands:
+  start          Initialize the TUN/TAP interface and join the network.
+  stop           Gracefully shut down the node and close active tunnels.
+  status         Display node health, connected peers, and network stats.
+  settings       Manage configuration (ports, interface names, identity).
+  gen-identity   Generate a new cryptographic identity (keypair).
+  version        Print the current build version and architecture.
+
+Flags:
+  -h, --help     Show this help message.
+  -v, --verbose  Enable debug logging for troubleshooting.
+
+Examples:
+  $ cloaq gen-identity --path ./id.key
+  $ cloaq start --config ./config.yaml
+  $ cloaq settings --port 9090
+
+Use "cloaq [command] --help" for more information about a command.
+`
+	fmt.Print(helpText)
+
 }
 
-func SettingsCommand() {
-	log.Println("settings text")
+func SettingsCommand(args []string) {
+	settingsFlags := flag.NewFlagSet("settings", flag.ExitOnError)
+
+	// Опрелеляем флаги для подкоманды
+	newPath := settingsFlags.String("path", currentConfig.IdentityPath, "Путь к файлу идентификации")
+	newPort := settingsFlags.Int("port", currentConfig.Port, "Порт для gRPC/Transport")
+
+	if len(args) == 0 {
+		fmt.Printf("Текущие настройки:\n  Path: %s\n  Port: %d\n", currentConfig.IdentityPath, currentConfig.Port)
+		return
+	}
+
+	err := settingsFlags.Parse(args)
+	if err != nil {
+		return
+	}
+
+	// Логика обновления
+	currentConfig.IdentityPath = *newPath
+	currentConfig.Port = *newPort
+
+	fmt.Println("✅ Настройки успешно обновлены.")
 }
 
 func startMonitor() {
