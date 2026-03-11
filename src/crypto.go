@@ -3,11 +3,33 @@ package network
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/ecdh"
 	"crypto/rand"
 	"errors"
 	"fmt"
 	"io"
 )
+
+func DeriveSharedSecret(privateKeyBytes []byte, peerPubicKeyBytes []byte) ([]byte, error) {
+	curve := ecdh.X25519()
+
+	privateKey, err := curve.NewPrivateKey(privateKeyBytes)
+	if err != nil {
+		return nil, fmt.Errorf("derive shared secret: invalid private key: %w", err)
+	}
+
+	peerPubicKey, err := curve.NewPublicKey(peerPubicKeyBytes)
+	if err != nil {
+		return nil, fmt.Errorf("derive shared secret: invalid peer public key: %w", err)
+	}
+
+	sharedSecret, err := privateKey.ECDH(peerPubicKey)
+	if err != nil {
+		return nil, fmt.Errorf("derive shared secret: ecdh failed: %w", err)
+	}
+
+	return sharedSecret, nil
+}
 
 func Encrypt(key []byte, plaintext []byte) ([]byte, error) {
 	if len(key) != 32 {

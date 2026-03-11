@@ -2,29 +2,39 @@ package network
 
 import (
 	"bytes"
+	"crypto/ecdh"
 	"crypto/rand"
 	"testing"
 )
 
-func TestEncryptDecryptRoundTrip(t *testing.T) {
-	key := make([]byte, 32)
-	if _, err := rand.Read(key); err != nil {
-		t.Fatalf("rand.Read key: %v", err)
-	}
+func TestDeriveSharedSecret(t *testing.T) {
+	curve := ecdh.X25519()
 
-	orig := []byte("hello cloaq - aes-gcm test message")
-
-	enc, err := Encrypt(key, orig)
+	alicePriv, err := curve.GenerateKey(rand.Reader)
 	if err != nil {
-		t.Fatalf("Encrypt: %v", err)
+		t.Fatalf("failed to generate alice private key: %v", err)
 	}
 
-	dec, err := Decrypt(key, enc)
+	bobPriv, err := curve.GenerateKey(rand.Reader)
 	if err != nil {
-		t.Fatalf("Decrypt: %v", err)
+		t.Fatalf("failed to generate bob private key: %v", err)
 	}
 
-	if !bytes.Equal(dec, orig) {
-		t.Fatalf("plaintext mismatch: got %q want %q", dec, orig)
+	aliceShared, err := DeriveSharedSecret(alicePriv.Bytes(), bobPriv.PublicKey().Bytes())
+	if err != nil {
+		t.Fatalf("alice derive failed: %v", err)
+	}
+
+	bobShared, err := DeriveSharedSecret(bobPriv.Bytes(), alicePriv.PublicKey().Bytes())
+	if err != nil {
+		t.Fatalf("bob derive failed: %v", err)
+	}
+
+	if !bytes.Equal(aliceShared, bobShared) {
+		t.Fatal("shared secrets do not match")
+	}
+
+	if len(aliceShared) != 32 {
+		t.Fatalf("expected 32-byte secret, got %d", len(aliceShared))
 	}
 }
