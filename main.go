@@ -15,20 +15,33 @@
 package main
 
 import (
-	"cloaq/src/commands"
+	cli "cloaq/src/cli"
 	"log"
 	"os"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Println("Usage: cloaq <command>")
+		log.Println("usage: cloaq <command>")
 		return
 	}
 
-	commandRegistry := commands.MakeCommandRegistry(&commands.RunCommand{}, &commands.SettingsCommand{})
-	help := &commands.HelpCommand{CLI: commandRegistry}
-	commandRegistry.Commands[help.Name()] = help // hate that we have Commands and commands. needs to be changed.
+	commandName := os.Args[1]
+	commandArguments := os.Args[2:]
+	for _, command := range cli.Commands {
+		if command.Name() != commandName {
+			continue // skip commands that don't match user input
+		}
 
-	commandRegistry.Execute()
+		switch cmd := command.(type) {
+		case *cli.Run:
+			cmd.Execute(commandArguments)
+		case *cli.Help:
+			cmd.Execute(commandArguments)
+		case *cli.Settings:
+			cmd.Execute(commandArguments)
+		default:
+			log.Println("unknown command:", commandName)
+		}
+	}
 }

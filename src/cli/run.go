@@ -12,7 +12,7 @@
 // For commercial licensing inquiries or permissions beyond the scope of this
 // license, please create an issue in github.
 
-package commands
+package cli
 
 import (
 	network "cloaq/src"
@@ -26,59 +26,29 @@ import (
 	"time"
 )
 
-type Command interface {
-	Name() string
-	Description() string
-	Execute(args []string) error
-}
+type Run struct{}
 
-type CLI struct {
-	Commands map[string]Command
-}
+var _ Command = (*Run)(nil) // enforcement of an interface
 
-func MakeCommandRegistry(cmds ...Command) *CLI {
-	registry := make(map[string]Command)
-	for _, cmd := range cmds {
-		registry[cmd.Name()] = cmd
-	}
-	return &CLI{Commands: registry}
-}
-
-func (cli *CLI) Execute() {
-	if len(os.Args) < 2 {
-		log.Println("Usage: cloaq <command>")
-		return
-	}
-
-	commandName := os.Args[1]
-	command, exists := cli.Commands[commandName]
-	if !exists {
-		log.Println("Unknown command:", commandName)
-	}
-
-	if err := command.Execute(os.Args[2:]); err != nil {
-		log.Fatal(err)
-	}
-}
-
-type RunCommand struct{}
-
-func (r *RunCommand) Name() string {
+func (r *Run) Name() string {
 	return "run"
 }
 
-func (r *RunCommand) Description() string {
-	return "Start Cloaq gateway"
+func (r *Run) Description() string {
+	return "start cloaq gateway"
 }
 
-func (r *RunCommand) Execute(args []string) error {
+func (r *Run) Execute(args []string) error {
 	if os.Geteuid() != 0 {
 		return fmt.Errorf("run as root")
 	}
 
-	port := flag.Int("port", 8080, "Port to listen on")
-	peers := flag.String("peers", "", "Comma-separated list of peer addresses")
-	err := flag.CommandLine.Parse(os.Args[2:])
+	fs := flag.NewFlagSet("run", flag.ExitOnError) // do not use global flags because flags from different commands can collide
+
+	port := fs.Int("port", 8080, "port to listen on")
+	peers := fs.String("peers", "", "comma-separated peers")
+
+	err := fs.Parse(args)
 	if err != nil {
 		return err
 	}
@@ -135,40 +105,6 @@ func (r *RunCommand) Execute(args []string) error {
 
 	log.Println("ipv6 tun gateway created")
 
-	return nil
-}
-
-type HelpCommand struct {
-	CLI *CLI
-}
-
-func (h *HelpCommand) Name() string {
-	return "help"
-}
-
-func (h *HelpCommand) Description() string {
-	return "Show help information"
-}
-
-func (h *HelpCommand) Execute(args []string) error {
-	for _, cmd := range h.CLI.Commands {
-		log.Printf("%s - %s\n", cmd.Name(), cmd.Description())
-	}
-	return nil
-}
-
-type SettingsCommand struct{}
-
-func (s *SettingsCommand) Name() string {
-	return "settings"
-}
-
-func (s *SettingsCommand) Description() string {
-	return "Display configuration settings"
-}
-
-func (s *SettingsCommand) Execute(args []string) error {
-	log.Println("----- [SETTINGS] -----")
 	return nil
 }
 
