@@ -15,36 +15,33 @@
 package main
 
 import (
-	"cloaq/src/commands"
-	"flag"
-	"fmt"
-
+	cli "cloaq/src/cli"
 	"log"
 	"os"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Println("Usage: cloaq <command>")
-		return
-	}
-	port := flag.Int("port", 8080, "Port to listen on")
-	peers := flag.String("peers", "", "Comma-separated list of peer addresses")
-	err := flag.CommandLine.Parse(os.Args[2:])
-	if err != nil {
+		log.Println("usage: cloaq <command>")
 		return
 	}
 
-	fmt.Printf("Starting Cloaq on port %d...\n", *port)
+	commandName := os.Args[1]
+	commandArguments := os.Args[2:]
+	for _, command := range cli.Commands {
+		if command.Name() != commandName {
+			continue // skip commands that don't match user input
+		}
 
-	switch os.Args[1] {
-	case "run":
-		commands.RunCommand(*port, *peers)
-	case "settings":
-		commands.SettingsCommand()
-	case "help":
-		commands.HelpCommand()
-	default:
-		log.Println("Unknown command:", os.Args[1])
+		switch cmd := command.(type) {
+		case *cli.Run:
+			cmd.Execute(commandArguments)
+		case *cli.Help:
+			cmd.Execute(commandArguments)
+		case *cli.Settings:
+			cmd.Execute(commandArguments)
+		default:
+			log.Println("unknown command:", commandName)
+		}
 	}
 }
