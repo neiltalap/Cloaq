@@ -17,6 +17,7 @@ package network
 import (
 	"crypto/ecdh"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -42,4 +43,15 @@ func GenerateIdentity() (*Identity, error) {
 	identity.PublicKey = pKey.Public().(*ecdh.PublicKey)
 
 	return identity, nil
+}
+
+func (i *Identity) DeriveSharedKey(peerPub *ecdh.PublicKey) ([]byte, error) {
+	// Perform ECDH key exchange
+	secret, err := i.PrivateKey.ECDH(peerPub)
+	if err != nil {
+		return nil, err
+	}
+	// Hash the shared secret to derive symmetric key
+	hash := sha256.Sum256(secret)
+	return hash[:], nil
 }
