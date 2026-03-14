@@ -19,6 +19,9 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
+	"log"
+	"os"
 )
 
 type Identity struct {

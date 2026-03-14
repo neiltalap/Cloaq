@@ -35,6 +35,17 @@ type interfaceRequest struct {
 	Flags uint16
 }
 
+// linus standart ioctl
+const TUNSETIFF = 0x400454ca
+const IFF_TUN = 0x0001
+const IFF_NO_PI = 0x1000
+
+type ifreq struct {
+	name  [16]byte
+	flags uint16
+	_     [22]byte
+}
+
 func CreateTUN(name string) (*os.File, error) {
 	fileDescriptor, err := os.OpenFile("/dev/net/tun", os.O_RDWR, 0)
 	if err != nil {
@@ -52,10 +63,13 @@ func CreateTUN(name string) (*os.File, error) {
 		uintptr(unsafe.Pointer(&req)),
 	)
 	if errno != 0 {
-		fileDescriptor.Close()
+		err := fileDescriptor.Close()
+		if err != nil {
+			return nil, err
+		}
 		return nil, errno
 	}
 
-	log.Println("TUN interface created: ", fileDescriptor)
+	log.Println("tun interface created: ", fileDescriptor)
 	return fileDescriptor, nil
 }

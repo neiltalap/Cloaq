@@ -41,6 +41,7 @@ func InitDevice() (Device, error) {
 	return &linuxDevice{name: name, f: f}, nil
 
 }
+
 // Read reads packets from the TUN device
 func (d *linuxDevice) Read(buf []byte) (int, error) {
 	if d.f == nil {
@@ -55,4 +56,3 @@ func (d *linuxDevice) Read(buf []byte) (int, error) {
 
 	return n, nil
 }
-

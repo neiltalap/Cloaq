@@ -15,36 +15,52 @@
 package network
 
 import (
+	"fmt"
 	"log"
+	"os"
 
-	"cloaq/src/tun"
+	"golang.org/x/sys/unix"
 )
 
 // Reads packets from Tunnel, FOR NOW it's just logs basic info (IPv4/IPv6)
-func ReadLoop(dev tun.Device) error {
+func ReadLoop(f *os.File) error {
+	if f == nil {
+		return fmt.Errorf("file handle is nil")
+	}
 
-	buf := make([]byte, 65535)
+	fd := int(f.Fd())
+
+	// Set file descriptor to blocking mode to avoid "not pollable" error in Go runtime
+	err := unix.SetNonblock(fd, false)
+	if err != nil {
+		return fmt.Errorf("failed to set blocking mode: %w", err)
+	}
+
+	log.Println("ReadLoop: initialized successfully, waiting for traffic...")
+
+	// Buffer size for standard MTU (1500) + some overhead
+	buf := make([]byte, 2048)
 
 	for {
-		n, err := dev.Read(buf)
+		// Use direct syscall.Read to bypass Go's network poller
+		n, err := unix.Read(fd, buf)
+
 		if err != nil {
-			log.Println("readloop error:", err)
-			return err
+			// If the syscall was interrupted by a signal, just retry
+			if err == unix.EINTR {
+				continue
+			}
+			return fmt.Errorf("read error: %w", err)
 		}
 
-		pkt := buf[:n]
-		if len(pkt) < 1 {
-			continue
-		}
+		if n > 0 {
+			// Basic packet metadata logging
+			// buf[0] >> 4 extracts the IP version (4 or 6)
+			ipVersion := buf[0] >> 4
+			fmt.Printf(">>> Received packet: %d bytes | IP Version: v%d\n", n, ipVersion)
 
-		ver := pkt[0] >> 4
-		switch ver {
-		case 6:
-			log.Println("ipv6 packet:", len(pkt), "bytes")
-		case 4:
-			log.Println("ipv4 packet:", len(pkt), "bytes")
-		default:
-			log.Println("unknown packet version", ver, ":", len(pkt), "bytes")
+			// TODO: Pass the packet to your processing logic
+			// ProcessPacket(buf[:n])
 		}
 	}
 }

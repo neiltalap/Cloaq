@@ -15,7 +15,8 @@
 package main
 
 import (
-	"cloaq/src/commands"
+	commands "cloaq/src/commands"
+
 	"flag"
 	"fmt"
 
@@ -38,10 +39,13 @@ func main() {
 	fmt.Printf("Starting Cloaq on port %d...\n", *port)
 
 	switch os.Args[1] {
+	case "version":
+		commands.VersionCommand()
+		return
 	case "run":
 		commands.RunCommand(*port, *peers)
 	case "settings":
-		commands.SettingsCommand()
+		commands.SettingsCommand(os.Args[2:])
 	case "help":
 		commands.HelpCommand()
 	default:
