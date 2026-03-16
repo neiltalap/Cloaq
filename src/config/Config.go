@@ -1,8 +1,10 @@
 package config
 
 import (
-	"encoding/json"
+	"log"
 	"os"
+
+	"go.yaml.in/yaml/v4"
 )
 
 const configFileName = "config.yaml"
@@ -13,22 +15,26 @@ type Config struct {
 	Interface    string `yaml:"interface"`
 }
 
-var currentConfig = Config{IdentityPath: "./id.key", Port: 8080}
+var AppConfig *Config
 
 func LoadConfig() (*Config, error) {
-	c := &Config{IdentityPath: "./id.key", Port: 8080}
-	data, err := os.ReadFile("config.json")
+	data, err := os.ReadFile(configFileName)
 	if err != nil {
-		return c, err
+		return nil, err
 	}
-	err = json.Unmarshal(data, c)
-	return c, err
+
+	var cfg Config
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
 }
 
-func SaveConfig(c *Config) error {
-	data, err := json.MarshalIndent(c, "", "  ")
+func Init() {
+	var err error
+	AppConfig, err = LoadConfig()
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	return os.WriteFile("config.json", data, 0644)
 }

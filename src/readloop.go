@@ -15,15 +15,15 @@
 package network
 
 import (
+	"cloaq/src/tun"
 	"fmt"
 	"log"
-	"os"
 
 	"golang.org/x/sys/unix"
 )
 
 // Reads packets from Tunnel, FOR NOW it's just logs basic info (IPv4/IPv6)
-func ReadLoop(f *os.File) error {
+func ReadLoop(f tun.Device) error {
 	if f == nil {
 		return fmt.Errorf("file handle is nil")
 	}

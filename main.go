@@ -15,7 +15,8 @@
 package main
 
 import (
-	"cloaq/src/commands"
+	"cloaq/src/cli"
+	"cloaq/src/config"
 	"flag"
 	"fmt"
 
@@ -24,6 +25,8 @@ import (
 )
 
 func main() {
+	config.Init()
+
 	if len(os.Args) < 2 {
 		log.Println("Usage: cloaq <command>")
 		return
@@ -39,11 +42,13 @@ func main() {
 
 	switch os.Args[1] {
 	case "run":
-		commands.RunCommand(*port, *peers)
+		cli.RunCommand(*port, *peers)
 	case "settings":
-		commands.SettingsCommand()
+		cli.SettingsCommand()
 	case "help":
-		commands.HelpCommand()
+		cli.HelpCommand()
+	case "version":
+		cli.VersionCommand()
 	default:
 		log.Println("Unknown command:", os.Args[1])
 	}
