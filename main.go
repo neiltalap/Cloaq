@@ -31,25 +31,44 @@ func main() {
 		log.Println("Usage: cloaq <command>")
 		return
 	}
-	port := flag.Int("port", 8080, "Port to listen on")
-	peers := flag.String("peers", "", "Comma-separated list of peer addresses")
+
+	port := flag.Int("port", 8080, "port to listen on")
+	flag.Int("peers", 1, "number of peers to connect to")
+
 	err := flag.CommandLine.Parse(os.Args[2:])
 	if err != nil {
 		return
 	}
 
-	fmt.Printf("Starting Cloaq on port %d...\n", *port)
+	fmt.Printf("starting Cloaq on port %d...\n", *port)
 
-	switch os.Args[1] {
+	commandName := os.Args[1]
+	args := os.Args[2:]
+
+	switch commandName {
 	case "run":
-		cli.RunCommand(*port, *peers)
+
+		cmd := &cli.Run{}
+		if err := cmd.Execute(args); err != nil {
+			log.Fatalf("error while executing run command %v", err)
+		}
+
 	case "settings":
-		cli.SettingsCommand()
+		cmd := &cli.Settings{}
+		if err := cmd.Execute(args); err != nil {
+			log.Fatalf("error: %v", err)
+		}
+
 	case "help":
-		cli.HelpCommand()
-	case "version":
-		cli.VersionCommand()
+		cmd := &cli.Help{}
+		err := cmd.Execute(args)
+		if err != nil {
+			return
+		}
+
 	default:
-		log.Println("Unknown command:", os.Args[1])
+		log.Printf("unknown command: %s", commandName)
+		log.Fatal("use help to see available commands")
 	}
+
 }
