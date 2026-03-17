@@ -72,7 +72,7 @@ func ReadLoop(device io.ReadCloser, packetChan chan<- Packet) error {
 	}
 }
 
-func safeRuntime(name string, fn func()) {
+func SafeRuntime(name string, fn func()) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("[RECOVERY] %s panicked: %v", name, r)

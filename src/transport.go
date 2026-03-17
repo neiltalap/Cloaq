@@ -2,10 +2,19 @@ package network
 
 import (
 	"net"
+	"strconv"
 )
 
 type Transport struct {
 	conn *net.UDPConn
+}
+
+const HeaderSize = 16
+
+type CloaqHeader struct {
+	Version    uint8
+	PacketType uint8
+	SessionID  uint32
 }
 
 func NewTransport(listenAddr string) (*Transport, error) {
@@ -24,8 +33,14 @@ func NewTransport(listenAddr string) (*Transport, error) {
 	}, nil
 }
 
-func (t *Transport) SendTo(dst *net.UDPAddr, data []byte) error {
-	_, err := t.conn.WriteToUDP(data, dst)
+func (t *Transport) SendTo(targetAddr string, data []byte) error {
+	addr, err := net.ResolveUDPAddr("udp", targetAddr)
+	if err != nil {
+		return err
+	}
+	finalFrame := t.Encapsulate(data)
+
+	_, err = t.conn.WriteToUDP(finalFrame, addr)
 	return err
 }
 
@@ -43,4 +58,38 @@ func (t *Transport) Listen(incoming chan<- []byte) {
 
 		incoming <- packet
 	}
+}
+
+func SendUDP(addr uint8, data []byte) error {
+	udpAddr, err := net.ResolveUDPAddr("udp", strconv.Itoa(int(addr)))
+	if err != nil {
+		return err
+	}
+
+	conn, err := net.DialUDP("udp", nil, udpAddr)
+	if err != nil {
+		return err
+	}
+	defer func(conn *net.UDPConn) {
+		err := conn.Close()
+		if err != nil {
+
+		}
+	}(conn)
+
+	_, err = conn.Write(data)
+	return err
+}
+
+func (t *Transport) Encapsulate(data []byte) []byte {
+
+	frame := make([]byte, len(data)+HeaderSize)
+
+	frame[0] = 1
+	frame[1] = 0
+
+	//copying the real ip packets
+	copy(frame[HeaderSize:], data)
+
+	return frame
 }
