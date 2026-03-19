@@ -15,6 +15,7 @@
 package network
 
 import (
+	"cloaq/src/config"
 	"crypto/ecdh"
 	"crypto/rand"
 	"crypto/sha256"
@@ -59,35 +60,48 @@ func loadIdentity(path string) (*ecdh.PrivateKey, error) {
 	return ecdh.X25519().NewPrivateKey(data)
 }
 
-func GenerateIdentity() (*Identity, error) {
-	path, err := identityPath()
+func (i *Identity) Generate() error {
+	priv, err := ecdh.X25519().GenerateKey(rand.Reader)
+	if err != nil {
+		return err
+	}
+
+	i.PrivateKey = priv
+	i.PublicKey = priv.Public().(*ecdh.PublicKey)
+
+	return nil
+}
+
+func CreateOrLoadIdentity() (*Identity, error) {
+	store, err := config.LoadStore()
 	if err != nil {
 		return nil, err
 	}
 
-	var priv *ecdh.PrivateKey
-
-	if _, err := os.Stat(path); err == nil {
-		priv, err = loadIdentity(path)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-
-		priv, err = ecdh.X25519().GenerateKey(rand.Reader)
+	if len(store.Keys) > 0 {
+		priv, err := ecdh.X25519().NewPrivateKey(store.Keys[0])
 		if err != nil {
 			return nil, err
 		}
 
-		if err := saveIdentity(path, priv.Bytes()); err != nil {
-			return nil, err
-		}
+		return &Identity{
+			PrivateKey: priv,
+			PublicKey:  priv.Public().(*ecdh.PublicKey),
+		}, nil
 	}
 
-	return &Identity{
-		PrivateKey: priv,
-		PublicKey:  priv.Public().(*ecdh.PublicKey),
-	}, nil
+	id := &Identity{}
+	if err := id.Generate(); err != nil {
+		return nil, err
+	}
+
+	// save identity
+	store.Keys = append(store.Keys, id.PrivateKey.Bytes())
+	if err := config.SaveStore(store); err != nil {
+		return nil, err
+	}
+
+	return id, nil
 }
 func (i *Identity) DeriveSharedKey(peerPub *ecdh.PublicKey) ([]byte, error) {
 	// Perform ECDH key exchange

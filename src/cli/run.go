@@ -29,13 +29,12 @@ func (s *Run) Execute(args []string) error {
 	log.Println("starting tunnel on port", s.port, "with peers:", s.peers)
 
 	// Initialize the identity for this node
-	identity, err := network.GenerateIdentity()
+	identity, err := network.CreateOrLoadIdentity()
 	if err != nil {
 		log.Fatal("identity creation failed: ", err)
 	}
 	// Logging the pubkey of the identity
 	log.Println("current node's pubkey: ", string(identity.PublicKey.Bytes()))
-
 	// Initialization of the VNIC on the node
 	dev, err := tun.InitDevice()
 	if err != nil {

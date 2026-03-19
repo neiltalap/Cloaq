@@ -19,7 +19,6 @@ import (
 	"cloaq/src/config"
 	"flag"
 	"fmt"
-
 	"log"
 	"os"
 )
@@ -83,5 +82,4 @@ func main() {
 		log.Printf("unknown command: %s", commandName)
 		log.Fatal("use help to see available commands")
 	}
-
 }

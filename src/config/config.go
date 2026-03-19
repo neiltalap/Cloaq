@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"go.yaml.in/yaml/v4"
 )
@@ -56,4 +57,53 @@ func SaveConfig(cfg *Config) error {
 	}
 
 	return nil
+}
+
+type IdentityStore struct {
+	Keys [][]byte `yaml:"keys"`
+}
+
+func getStorePath() (string, error) {
+	exe, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+
+	dir := filepath.Dir(exe)
+	return filepath.Join(dir, "store.yaml"), nil
+}
+func LoadStore() (*IdentityStore, error) {
+	path, err := getStorePath()
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return &IdentityStore{}, nil
+		}
+		return nil, err
+	}
+
+	var store IdentityStore
+	if err := yaml.Unmarshal(data, &store); err != nil {
+		return nil, err
+	}
+
+	return &store, nil
+}
+
+func SaveStore(store *IdentityStore) error {
+	path, err := getStorePath()
+	if err != nil {
+		return err
+	}
+
+	data, err := yaml.Marshal(store)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(path, data, 0600)
 }
