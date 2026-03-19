@@ -25,5 +25,6 @@ type Device interface {
 	Read(p []byte) (int, error)
 	Write(p []byte) (int, error)
 
-	File() *os.File //Optional, linux can provide an fd-backed os.File, wintun won't
+	File() *os.File
+	Fd() int //Optional, linux can provide an fd-backed os.File, wintun won't
 }

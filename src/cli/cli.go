@@ -24,4 +24,5 @@ var Commands = []Command{
 	&Settings{},
 	&Run{},
 	&Help{},
+	&Monitor{},
 }

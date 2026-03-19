@@ -32,6 +32,7 @@ func (t *linuxDevice) Start() error                { return nil }
 func (t *linuxDevice) Close() error                { return t.f.Close() }
 func (t *linuxDevice) Write(p []byte) (int, error) { return t.f.Write(p) }
 func (t *linuxDevice) File() *os.File              { return t.f }
+func (t *linuxDevice) Fd() int                     { return int(t.f.Fd()) }
 
 // InitDevice creates a L3 TUN on Linux
 func InitDevice() (Device, error) {

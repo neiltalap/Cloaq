@@ -15,6 +15,7 @@
 package cli
 
 import (
+	"fmt"
 	"log"
 )
 
@@ -31,8 +32,29 @@ func (h *Help) Description() string {
 }
 
 func (h *Help) Execute(args []string) error {
+	log.Println("----- [help] -----")
+
+	fmt.Println("cloaq — Universal Decentralized Anonymity Layer (UDAL)")
+	fmt.Println("\nUsage:")
+	fmt.Println("  cloaq [command] [arguments]")
+
+	fmt.Println("\nAvailable Commands:")
+
+	// 1. Dynamically list all registered commands
 	for _, cmd := range Commands {
-		log.Printf("%s - %s\n", cmd.Name(), cmd.Description())
+		// We use padding to align descriptions for better readability
+		fmt.Printf("  %-15s %s\n", cmd.Name(), cmd.Description())
 	}
+
+	fmt.Println("\nFlags:")
+	fmt.Println("  -h, --help      Show this help message")
+	fmt.Println("  -v, --verbose   Enable debug logging")
+
+	fmt.Println("\nExamples:")
+	fmt.Println("  $ cloaq settings --port 9090")
+	fmt.Println("  $ cloaq start")
+
+	fmt.Println("\nUse \"cloaq [command] --help\" for more information about a specific command.")
+
 	return nil
 }

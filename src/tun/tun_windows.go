@@ -104,7 +104,6 @@ func InitDevice() (Device, error) {
 			return nil, fmt.Errorf("CreateAdapter: %w", err)
 		}
 	}
-
 	return &windowsTunnel{
 		name:    name,
 		adapter: adapter,
