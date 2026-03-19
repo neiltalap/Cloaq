@@ -103,6 +103,33 @@ func CreateOrLoadIdentity() (*Identity, error) {
 
 	return id, nil
 }
+
+// DO NOT REMOVE THIS
+// the new change made identity creation revolve around checking for a yaml file
+// this blocks me out of creating two identities on a single machine which i need for creating tests
+func GenerateTestIdentity() (*Identity, error) {
+	priv, err := ecdh.X25519().GenerateKey(rand.Reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Identity{
+		PrivateKey: priv,
+		PublicKey:  priv.Public().(*ecdh.PublicKey),
+	}, nil
+}
+
+func ParsePublicKey(data []byte) (*ecdh.PublicKey, error) {
+	curve := ecdh.X25519()
+
+	pub, err := curve.NewPublicKey(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return pub, nil
+}
+
 func (i *Identity) DeriveSharedKey(peerPub *ecdh.PublicKey) ([]byte, error) {
 	// Perform ECDH key exchange
 	secret, err := i.PrivateKey.ECDH(peerPub)
