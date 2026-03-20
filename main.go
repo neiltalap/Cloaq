@@ -17,7 +17,6 @@ package main
 import (
 	"cloaq/src/cli"
 	"cloaq/src/config"
-	"cloaq/src/monitor"
 	"flag"
 	"fmt"
 
@@ -68,7 +67,7 @@ func main() {
 		}
 
 	case "monitor":
-		cmd := &monitor.Monitor{}
+		cmd := &cli.Monitor{}
 		err := cmd.Execute(args)
 		if err != nil {
 			return

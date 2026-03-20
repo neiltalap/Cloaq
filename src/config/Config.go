@@ -11,10 +11,9 @@ import (
 const configFileName = "config.yaml"
 
 type Config struct {
-	IdentityPath string   `yaml:"identity_path"`
-	Port         int      `yaml:"port"`
-	Interface    string   `yaml:"interface"`
-	Peers        []string `yaml:"peers"`
+	IdentityPath string `yaml:"identity_path"`
+	Port         int    `yaml:"port"`
+	Interface    string `yaml:"interface"`
 }
 
 var AppConfig *Config

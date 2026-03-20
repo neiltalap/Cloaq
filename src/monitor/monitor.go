@@ -1,19 +1,14 @@
-package monitor
+package cli
 
 import (
 	"log"
 	"runtime"
-	"sync/atomic"
 	"time"
 )
 
-var (
-	BytesSent     uint64
-	BytesReceived uint64
-)
-
-// monitor struct for monitoring
 type Monitor struct{}
+
+var _ Command = (*Monitor)(nil) // enforcement of an interface
 
 func (h *Monitor) Name() string {
 	return "monitor"
@@ -24,19 +19,19 @@ func (h *Monitor) Description() string {
 }
 
 func (h *Monitor) Execute(args []string) error {
+
 	const (
 		ByteToMiB = 1024 * 1024
-		Interval  = 10 * time.Second
+		Interval  = 30 * time.Second
 	)
-
 	go func() {
 		for {
 			var m runtime.MemStats
 			runtime.ReadMemStats(&m)
 
-			log.Printf("[monitor] RAM: %d MB | Sent: %d bytes | Goroutines: %d",
+			log.Printf("[monitor] alloc: %d MB, sys: %d MB, goroutines: %d",
 				m.Alloc/ByteToMiB,
-				atomic.LoadUint64(&BytesSent),
+				m.Sys/ByteToMiB,
 				runtime.NumGoroutine(),
 			)
 

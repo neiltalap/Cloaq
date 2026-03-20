@@ -1,3 +1,17 @@
+// NOTICE
+
+// Project Name: Cloaq
+// Copyright © 2026 Neil Talap and/or its designated Affiliates.
+
+// This software is licensed under the Dragonfly Public License (DPL) 1.0.
+
+// All rights reserved. The names "Neil Talap" and any associated logos or branding
+// are trademarks of the Licensor and may not be used without express written permission,
+// except as provided in Section 7 of the License.
+
+// For commercial licensing inquiries or permissions beyond the scope of this
+// license, please create an issue in github.
+
 package cli
 
 import (
@@ -34,13 +48,12 @@ func (s *Run) Execute(args []string) error {
 	tr, _ := network.NewTransport(":9000")
 
 	// Initialize the identity for this node
-	identity, err := network.GenerateIdentity()
+	identity, err := network.CreateOrLoadIdentity()
 	if err != nil {
 		log.Fatal("identity creation failed: ", err)
 	}
 	// Logging the pubkey of the identity
 	log.Println("current node's pubkey: ", string(identity.PublicKey.Bytes()))
-
 	// Initialization of the VNIC on the node
 	dev, err := tun.InitDevice("cloaq0")
 	if err != nil {
