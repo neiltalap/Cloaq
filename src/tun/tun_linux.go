@@ -41,7 +41,6 @@ func (t *LinuxDevice) Fd() int                     { return int(t.f.Fd()) }
 func InitDevice(name string) (*LinuxDevice, error) {
 	log.Printf("Initializing TUN device: %s", name)
 
-	// Вызываем создание напрямую из твоей либы
 	dev, err := lintun.CreateTUN(name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create TUN interface: %w", err)
@@ -57,7 +56,6 @@ func InitDevice(name string) (*LinuxDevice, error) {
 		return nil, fmt.Errorf("unsupported TUN device type: %T", dev)
 	}
 
-	// Фикс "not pollable"
 	rawConn, err := f.SyscallConn()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get raw connection: %w", err)
