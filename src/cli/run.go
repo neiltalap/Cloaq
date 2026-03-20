@@ -42,7 +42,7 @@ func (s *Run) Execute(args []string) error {
 	log.Println("current node's pubkey: ", string(identity.PublicKey.Bytes()))
 
 	// Initialization of the VNIC on the node
-	dev, err := tun.InitDevice()
+	dev, err := tun.InitDevice("cloaq0")
 	if err != nil {
 		log.Fatal("tunnel init error:", err)
 	}
@@ -85,19 +85,6 @@ func (s *Run) Execute(args []string) error {
 	//select{}
 	log.Println("ipv6 tun gateway created")
 
-	for pkt := range packetChan {
-
-		if len(s.peers) > 0 {
-			target := s.peers[0]
-
-			err := tr.SendTo(target, pkt.Data)
-			if err == nil {
-				atomic.AddUint64(&monitor.BytesSent, uint64(len(pkt.Data)))
-				log.Printf("[sent] %d bytes to %s", len(pkt.Data), target)
-			}
-			log.Printf("[sent] %d bytes to %s", len(pkt.Data), target)
-		}
-	}
 	m := &monitor.Monitor{}
 
 	go network.SafeRuntime("Monitor", func() {
@@ -106,5 +93,24 @@ func (s *Run) Execute(args []string) error {
 		}
 	})
 
+	// encapsulate packets
+	for pkt := range packetChan {
+		if len(s.peers) > 0 {
+			target := s.peers[0]
+
+			header := make([]byte, 4)
+			header[0] = 0x01 // version
+			header[1] = 0x0A // type: data packet
+
+			onionFrame := append(header, pkt.Data...)
+
+			err := tr.SendTo(target, onionFrame)
+
+			if err == nil {
+				atomic.AddUint64(&monitor.BytesSent, uint64(len(onionFrame)))
+				log.Printf("[sent] %d bytes onion-frame to %s", len(onionFrame), target)
+			}
+		}
+	}
 	return nil
 }
