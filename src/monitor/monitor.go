@@ -12,7 +12,7 @@ var (
 	BytesReceived uint64
 )
 
-// Структура Monitor (с большой буквы!)
+// monitor struct for monitoring
 type Monitor struct{}
 
 func (h *Monitor) Name() string {
