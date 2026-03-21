@@ -156,7 +156,7 @@ func DiffieHellmanHandshake(
 	result chan []byte,
 ) {
 	// Send our public key
-	err := transport.SendTo(peerAddr, encodePublicKey(self.PublicKey.Bytes()))
+	err := transport.SendTo(peerAddr.String(), encodePublicKey(self.PublicKey.Bytes()))
 	if err != nil {
 		t.Fatal(err)
 	}

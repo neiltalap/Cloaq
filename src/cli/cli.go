@@ -14,6 +14,10 @@
 
 package cli
 
+import (
+	"cloaq/src/monitor"
+)
+
 type Command interface {
 	Name() string
 	Description() string
@@ -24,5 +28,5 @@ var Commands = []Command{
 	&Settings{},
 	&Run{},
 	&Help{},
-	&Monitor{},
+	&monitor.Monitor{},
 }

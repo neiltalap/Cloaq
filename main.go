@@ -16,6 +16,7 @@ package main
 
 import (
 	cli "cloaq/src/cli"
+	"cloaq/src/monitor"
 	"log"
 	"os"
 )
@@ -35,15 +36,31 @@ func main() {
 
 		switch cmd := command.(type) {
 		case *cli.Run:
-			cmd.Execute(commandArguments)
+			err := cmd.Execute(commandArguments)
+			if err != nil {
+				return
+			}
 		case *cli.Help:
-			cmd.Execute(commandArguments)
+			err := cmd.Execute(commandArguments)
+			if err != nil {
+				return
+			}
 		case *cli.Settings:
-			cmd.Execute(commandArguments)
-		case *cli.Monitor:
-			cmd.Execute(commandArguments)
+			err := cmd.Execute(commandArguments)
+			if err != nil {
+				return
+			}
+		case *monitor.Monitor:
+			err := cmd.Execute(commandArguments)
+			if err != nil {
+				return
+			}
+
 		case *cli.Version:
-			cmd.Execute(commandArguments)
+			err := cmd.Execute(commandArguments)
+			if err != nil {
+				return
+			}
 		default:
 			log.Println("unknown command:", commandName)
 		}
