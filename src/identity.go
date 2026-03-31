@@ -1,5 +1,3 @@
-// © 2026 Polypodomy — AGPLv3
-
 package network
 
 import (
