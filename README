@@ -1,53 +1,40 @@
-_________ .__                       
-\_   ___ \|  |   _________    ______
-/    \  \/|  |  /  _ \__  \  / ____/
-\     \___|  |_(  <_> ) __ \< <_|  |
- \______  /____/\____(____  /\__   |
-        \/                \/    |__|
+# Synapse: Inter-Cluster Transport Layer
 
-Universal Decentralized Anonymity Layer
-A protocol-agnostic privacy transport that decouples identity from connectivity.
+Synapse is a high-performance, programmable transport layer designed for secure, inter-cluster and hybrid-cloud networking. It acts as the "nervous system" for distributed infrastructure, enabling zero-trust connectivity across arbitrary network boundaries.
 
-FEATURES
+## Features
 
-* Identity Decoupling: No IP-based tracking.
-* Decentralized: No central authorities; every node is a relay.
-* High Performance: Near-WireGuard speeds with onion routing.
-* Protocol Agnostic: Supports TCP, UDP, and P2P traffic.
+- **Inter-Cluster Transport**: Securely connect disparate Kubernetes clusters without complex VPC peering or VPN gateways.
+- **Programmable Routing**: Multi-hop, policy-aware path selection for optimized traffic steering and high availability.
+- **NAT Traversal**: Seamless connectivity for nodes behind firewalls, NAT, or across the public internet.
+- **Cilium Integration**: Complements Cilium by extending secure pod networking beyond the cluster boundary.
+- **High Performance**: Optimized for low-latency, high-throughput encrypted transport using modern cryptographic primitives.
 
-USAGE
+## Quick Start
 
-Build:
-go build -o cloaq src/*.go
+### Build
+```bash
+go build -o synapse src/main.go
+```
 
-Run (requires root for TUN interface):
-sudo ./cloaq run
+### Run
+Requires root/sudo privileges to manage TUN interfaces:
+```bash
+sudo ./synapse run
+```
 
-CONTRIBUTING
+## Documentation
 
-See CONTRIBUTING for details.
-All contributors must sign the CLA.
+For detailed architecture and protocol information, see the [docs](./docs) directory.
 
-LICENSE
+## Contributing
 
-Licensed under the Dragonfly Public License v1.0.
-See LICENSE and NOTICE for details.
+We welcome contributions! Please see [CONTRIBUTING](./CONTRIBUTING) for our development workflow.
 
-Mandatory Source Header
-All source files must include the header defined in the NOTICE file.
+## License
 
-DECLARATION OF SOVEREIGNTY AND INTENT
+Polypod is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**.
+See the [LICENSE](./LICENSE) file for the full license text.
 
-Cloaq is a sovereign, independent project dedicated to privacy and technical autonomy. 
-This project is strictly non-affiliated with any state or corporate entity.
-
-All contributors and users are bound by the terms defined in the:
-1. SOVEREIGNTY.
-2. LICENSE (Dragonfly Public License Addendum).
-3. NOTICE file.
-4. CONTRIBUTING file.
-5. CLA file.
-
-Any attempt at state co-optation or fraudulent claims of achievement results in 
-immediate revocation of all rights to this software.
-
+---
+© 2026 Polypodomy. All rights reserved.
