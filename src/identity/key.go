@@ -1,6 +1,7 @@
 package key
 
 import (
+	"crypto/ed25519"
 	"crypto/rand"
 	"errors"
 	"os"
@@ -8,28 +9,34 @@ import (
 
 var WrongByteSize = errors.New("size of the key is not 32 bytes")
 
-type PrivateKey struct {
-	Data [32]byte
+// ed25519 based cryptographic private key
+type Key struct {
+	Seed       [32]byte
+	PrivateKey ed25519.PrivateKey
 }
 
-func (privateKey *PrivateKey) Generate() error {
-	_, err := rand.Read(privateKey.Data[:])
+// generates a new ed25519 key and a seed along side it
+func (privateKey *Key) Generate() error {
+	_, err := rand.Read(privateKey.Seed[:])
 	if err != nil {
 		return err
 	}
 
+	privateKey.PrivateKey = ed25519.NewKeyFromSeed(privateKey.Seed[:])
+
 	return nil
 }
 
-func (privateKey *PrivateKey) Save(filePath string) error {
-	if err := os.WriteFile(filePath, privateKey.Data[:], 0600); err != nil {
+func (key *Key) Save(filePath string) error {
+	if err := os.WriteFile(filePath, key.Seed[:], 0600); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func Load(filePath string) (*PrivateKey, error) {
+// rederives the private ed25519 key on load of the stored hash
+func Load(filePath string) (*Key, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -39,9 +46,11 @@ func Load(filePath string) (*PrivateKey, error) {
 		return nil, WrongByteSize
 	}
 
-	tempPrivateKey := new(PrivateKey)
+	tempPrivateKey := new(Key)
 	// copying the data read from the file to the instance
-	copy(tempPrivateKey.Data[:], data)
+	copy(tempPrivateKey.Seed[:], data)
+	// re-generating the ed25519 key from the seed
+	tempPrivateKey.PrivateKey = ed25519.NewKeyFromSeed(data)
 
 	return tempPrivateKey, nil
 }
