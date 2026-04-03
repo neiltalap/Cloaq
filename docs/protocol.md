@@ -1,4 +1,4 @@
-# Cloaq Encapsulation Protocol (v1)
+# Synapse Encapsulation Protocol (v1)
 
 Each packet sent over the UDP transport follows this 4-byte header format followed by the encrypted payload.
 
