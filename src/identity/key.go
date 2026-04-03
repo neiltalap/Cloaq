@@ -1,6 +1,7 @@
 package key
 
 import (
+	"crypto"
 	"crypto/ed25519"
 	"crypto/rand"
 	"errors"
@@ -53,4 +54,26 @@ func Load(filePath string) (*Key, error) {
 	tempPrivateKey.PrivateKey = ed25519.NewKeyFromSeed(data)
 
 	return tempPrivateKey, nil
+}
+
+// message gets signed with an ed25519 key
+func (key *Key) Sign(message []byte) ([]byte, error) {
+	// we don't need an entropy source for ed25519
+	// ed25519 is opinionated, it handles its hashing itself
+	signature, err := key.PrivateKey.Sign(nil, message, crypto.Hash(0))
+	// the error will never be anything but nil because of ed25519
+	// there is no random source that can fail, it uses math that is
+	// solely based on your key and the message
+	if err != nil {
+		return nil, err
+	}
+
+	return signature, nil
+}
+
+// generating the public key from the private key
+func (key *Key) Public() ed25519.PublicKey {
+	publicKey := key.PrivateKey.Public()
+
+	return publicKey.(ed25519.PublicKey)
 }
